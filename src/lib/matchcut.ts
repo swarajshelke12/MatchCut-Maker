@@ -95,7 +95,7 @@ export function renderFrameToCanvas(
   // Word wrap if needed
   const words = text.split(' ');
   const maxWidth = canvas.width * 0.9;
-  let lines: string[] = [];
+  const lines: string[] = [];
   let currentLine = '';
   
   for (const word of words) {
@@ -120,7 +120,87 @@ export function renderFrameToCanvas(
   });
 }
 
-export async function exportSequence(
+// Sleep helper for frame timing
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export async function exportAsVideo(
+  sequence: MatchCutSequence,
+  canvas: HTMLCanvasElement,
+  onProgress?: (progress: number) => void
+): Promise<Blob> {
+  const { frames, settings } = sequence;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Could not get canvas context');
+
+  // Use a higher bitrate for quality
+  const stream = canvas.captureStream(settings.fps);
+  
+  // Try VP9 with alpha first, fallback to VP8
+  let mimeType = 'video/webm;codecs=vp9';
+  if (!MediaRecorder.isTypeSupported(mimeType)) {
+    mimeType = 'video/webm;codecs=vp8';
+  }
+  if (!MediaRecorder.isTypeSupported(mimeType)) {
+    mimeType = 'video/webm';
+  }
+
+  const recorder = new MediaRecorder(stream, {
+    mimeType,
+    videoBitsPerSecond: 10000000, // 10 Mbps for high quality
+  });
+
+  const chunks: Blob[] = [];
+  
+  recorder.ondataavailable = (e) => {
+    if (e.data.size > 0) {
+      chunks.push(e.data);
+    }
+  };
+
+  const recordingPromise = new Promise<Blob>((resolve, reject) => {
+    recorder.onstop = () => {
+      const blob = new Blob(chunks, { type: mimeType });
+      resolve(blob);
+    };
+    recorder.onerror = (e) => reject(e);
+  });
+
+  // Start recording
+  recorder.start();
+
+  // Render each frame with proper timing
+  const frameDuration = 1000 / settings.fps;
+  
+  for (let i = 0; i < frames.length; i++) {
+    const frame = frames[i];
+    
+    // Render the frame
+    renderFrameToCanvas(
+      canvas,
+      sequence.text,
+      frame.fontFamily,
+      settings.fontSize,
+      settings.foregroundColor,
+      settings.backgroundColor === 'transparent' ? 'rgba(0,0,0,0)' : settings.backgroundColor
+    );
+    
+    // Wait for the frame duration
+    await sleep(frameDuration);
+    
+    if (onProgress) {
+      onProgress((i + 1) / frames.length);
+    }
+  }
+
+  // Stop recording
+  recorder.stop();
+
+  return recordingPromise;
+}
+
+export async function exportSequenceAsPngs(
   sequence: MatchCutSequence,
   canvas: HTMLCanvasElement,
   onProgress?: (progress: number) => void
@@ -139,7 +219,7 @@ export async function exportSequence(
       frame.fontFamily,
       settings.fontSize,
       settings.foregroundColor,
-      'transparent' // Always export with alpha
+      'transparent'
     );
     
     const blob = await new Promise<Blob>((resolve) => {
