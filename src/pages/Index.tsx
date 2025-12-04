@@ -5,9 +5,9 @@ import { Header } from '@/components/matchcut/Header';
 import { Footer } from '@/components/matchcut/Footer';
 import { InputPanel } from '@/components/matchcut/InputPanel';
 import { PreviewCanvas } from '@/components/matchcut/PreviewCanvas';
-import { ControlPanel } from '@/components/matchcut/ControlPanel';
+import { ControlPanel, ExportFormat } from '@/components/matchcut/ControlPanel';
 import { PRESETS, PresetKey } from '@/lib/fonts';
-import { MatchCutSettings, generateSequence, exportSequence, MatchCutSequence } from '@/lib/matchcut';
+import { MatchCutSettings, generateSequence, exportAsVideo, exportSequenceAsPngs, MatchCutSequence } from '@/lib/matchcut';
 import { toast } from 'sonner';
 
 const DEFAULT_SETTINGS: MatchCutSettings = {
@@ -27,7 +27,7 @@ const Index = () => {
   const [selectedPreset, setSelectedPreset] = useState<PresetKey | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
-  const [lastExport, setLastExport] = useState<{ filename: string; frames: number } | null>(null);
+  const [lastExport, setLastExport] = useState<{ filename: string; frames: number; format: string } | null>(null);
   const exportCanvasRef = useRef<HTMLCanvasElement>(null);
 
   const sequence: MatchCutSequence | null = useMemo(() => {
@@ -54,32 +54,47 @@ const Index = () => {
     }));
   }, []);
 
-  const handleExport = useCallback(async () => {
+  const handleExport = useCallback(async (format: ExportFormat) => {
     if (!sequence || !exportCanvasRef.current) return;
 
     setIsExporting(true);
     setExportProgress(0);
 
+    const sanitizedText = settings.text.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 20);
+
     try {
-      const { pngs, json } = await exportSequence(
-        sequence,
-        exportCanvasRef.current,
-        setExportProgress
-      );
-
-      const zip = new JSZip();
-      const sanitizedText = settings.text.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 20);
-      const folder = zip.folder(sanitizedText);
-
-      if (folder) {
-        const framesFolder = folder.folder('frames');
-        for (const png of pngs) {
-          framesFolder?.file(png.name, png.blob);
-        }
-        folder.file(`${sanitizedText}_timing.json`, json);
+      if (format === 'video') {
+        // Export as WebM video
+        toast.info('Recording video... This may take a moment.');
         
-        // Add readme
-        const readme = `# MatchCut Export: ${settings.text}
+        const videoBlob = await exportAsVideo(
+          sequence,
+          exportCanvasRef.current,
+          setExportProgress
+        );
+
+        saveAs(videoBlob, `${sanitizedText}_matchcut.webm`);
+        setLastExport({ filename: sanitizedText, frames: sequence.totalFrames, format: 'WebM' });
+        toast.success('Video exported! Ready to drop into your editor.');
+      } else {
+        // Export as PNG sequence
+        const { pngs, json } = await exportSequenceAsPngs(
+          sequence,
+          exportCanvasRef.current,
+          setExportProgress
+        );
+
+        const zip = new JSZip();
+        const folder = zip.folder(sanitizedText);
+
+        if (folder) {
+          const framesFolder = folder.folder('frames');
+          for (const png of pngs) {
+            framesFolder?.file(png.name, png.blob);
+          }
+          folder.file(`${sanitizedText}_timing.json`, json);
+          
+          const readme = `# MatchCut Export: ${settings.text}
 
 ## Contents
 - /frames/ - PNG sequence with alpha channel
@@ -111,14 +126,15 @@ const Index = () => {
 - Total frames: ${sequence.totalFrames}
 - Seed: ${settings.seed}
 `;
-        folder.file('README.md', readme);
+          folder.file('README.md', readme);
+        }
+
+        const blob = await zip.generateAsync({ type: 'blob' });
+        saveAs(blob, `${sanitizedText}_matchcut.zip`);
+
+        setLastExport({ filename: sanitizedText, frames: pngs.length, format: 'PNG' });
+        toast.success(`Exported ${pngs.length} frames successfully!`);
       }
-
-      const blob = await zip.generateAsync({ type: 'blob' });
-      saveAs(blob, `${sanitizedText}_matchcut.zip`);
-
-      setLastExport({ filename: sanitizedText, frames: pngs.length });
-      toast.success(`Exported ${pngs.length} frames successfully!`);
     } catch (error) {
       console.error('Export failed:', error);
       toast.error('Export failed. Please try again.');

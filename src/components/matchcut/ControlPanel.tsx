@@ -5,14 +5,16 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { CURATED_FONTS, FontOption } from '@/lib/fonts';
-import { Download, Shuffle, Settings2, Palette } from 'lucide-react';
+import { CURATED_FONTS } from '@/lib/fonts';
+import { Download, Shuffle, Settings2, Palette, Video, Image } from 'lucide-react';
 import { MatchCutSettings } from '@/lib/matchcut';
+
+export type ExportFormat = 'video' | 'png';
 
 interface ControlPanelProps {
   settings: MatchCutSettings;
   onSettingsChange: (settings: Partial<MatchCutSettings>) => void;
-  onExport: () => void;
+  onExport: (format: ExportFormat) => void;
   isExporting: boolean;
   exportProgress: number;
 }
@@ -75,7 +77,7 @@ export function ControlPanel({
             </Button>
           </div>
         </div>
-        <ScrollArea className="h-[180px] rounded-md border border-border bg-secondary/30 p-3">
+        <ScrollArea className="h-[140px] rounded-md border border-border bg-secondary/30 p-3">
           <div className="space-y-2">
             {displayedFonts.map((font) => (
               <div key={font.name} className="flex items-center gap-2">
@@ -262,10 +264,10 @@ export function ControlPanel({
         </div>
       </div>
 
-      {/* Export */}
-      <div className="mt-auto pt-4 border-t border-border">
+      {/* Export Buttons */}
+      <div className="mt-auto pt-4 border-t border-border space-y-2">
         <Button
-          onClick={onExport}
+          onClick={() => onExport('video')}
           disabled={isExporting || !settings.text.trim()}
           className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-glow"
         >
@@ -276,13 +278,24 @@ export function ControlPanel({
             </>
           ) : (
             <>
-              <Download className="w-4 h-4 mr-2" />
-              Generate MatchCut
+              <Video className="w-4 h-4 mr-2" />
+              Export Video (WebM)
             </>
           )}
         </Button>
-        <p className="text-xs text-muted-foreground text-center mt-2">
-          PNG sequence + JSON timing file
+        
+        <Button
+          onClick={() => onExport('png')}
+          disabled={isExporting || !settings.text.trim()}
+          variant="outline"
+          className="w-full bg-secondary/50 border-border hover:bg-secondary hover:border-primary/50"
+        >
+          <Image className="w-4 h-4 mr-2" />
+          Export PNG Sequence
+        </Button>
+        
+        <p className="text-xs text-muted-foreground text-center">
+          WebM video ready to drop into any editor
         </p>
       </div>
     </div>
