@@ -6,16 +6,16 @@ import { Footer } from '@/components/matchcut/Footer';
 import { InputPanel } from '@/components/matchcut/InputPanel';
 import { PreviewCanvas } from '@/components/matchcut/PreviewCanvas';
 import { ControlPanel, ExportFormat } from '@/components/matchcut/ControlPanel';
-import { PRESETS, PresetKey } from '@/lib/fonts';
+import { PRESETS, PresetKey, DEFAULT_IMPACT_FONTS } from '@/lib/fonts';
 import { MatchCutSettings, generateSequence, exportAsVideo, exportSequenceAsPngs, MatchCutSequence } from '@/lib/matchcut';
 import { toast } from 'sonner';
 
 const DEFAULT_SETTINGS: MatchCutSettings = {
   text: '',
-  fps: 30,
-  duration: 3,
-  framesPerCard: 2,
-  selectedFonts: [],
+  fps: 60,
+  duration: 2,
+  framesPerCard: 1,
+  selectedFonts: DEFAULT_IMPACT_FONTS,
   foregroundColor: '#ffffff',
   backgroundColor: '#000000',
   fontSize: 180,
