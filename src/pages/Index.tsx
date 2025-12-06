@@ -6,8 +6,11 @@ import { Footer } from '@/components/matchcut/Footer';
 import { InputPanel } from '@/components/matchcut/InputPanel';
 import { PreviewCanvas } from '@/components/matchcut/PreviewCanvas';
 import { ControlPanel, ExportFormat } from '@/components/matchcut/ControlPanel';
+import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
+import { BuyCreditsDialog } from '@/components/credits/BuyCreditsDialog';
 import { PRESETS, PresetKey, DEFAULT_IMPACT_FONTS } from '@/lib/fonts';
 import { MatchCutSettings, generateSequence, exportAsVideo, exportSequenceAsPngs, MatchCutSequence } from '@/lib/matchcut';
+import { useCredits } from '@/hooks/use-credits';
 import { toast } from 'sonner';
 
 const DEFAULT_SETTINGS: MatchCutSettings = {
@@ -28,12 +31,30 @@ const Index = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
   const [lastExport, setLastExport] = useState<{ filename: string; frames: number; format: string } | null>(null);
+  const [showInsufficientDialog, setShowInsufficientDialog] = useState(false);
+  const [insufficientReason, setInsufficientReason] = useState('');
+  const [showBuyDialog, setShowBuyDialog] = useState(false);
   const exportCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Credit system hook
+  const credits = useCredits();
 
   const sequence: MatchCutSequence | null = useMemo(() => {
     if (!settings.text.trim()) return null;
     return generateSequence(settings);
   }, [settings]);
+
+  // Calculate render cost based on current settings
+  const renderCost = useMemo(() => {
+    const numFonts = settings.selectedFonts.length || 1;
+    const totalFrames = sequence?.totalFrames || Math.ceil(settings.fps * settings.duration);
+    return credits.getRenderCost(numFonts, settings.duration, totalFrames);
+  }, [settings, sequence, credits]);
+
+  // Check if user can afford the render
+  const affordCheck = useMemo(() => {
+    return credits.checkCanRender(renderCost.total);
+  }, [credits, renderCost]);
 
   const handleSettingsChange = useCallback((newSettings: Partial<MatchCutSettings>) => {
     setSettings((prev) => ({ ...prev, ...newSettings }));
@@ -54,17 +75,36 @@ const Index = () => {
     }));
   }, []);
 
+  const handlePurchaseCredits = useCallback((pack: 'PACK_200' | 'PACK_500') => {
+    credits.openPaymentLink(pack);
+    // For demo: simulate adding credits after redirect
+    // In production, this would be handled via Stripe webhook
+    toast.info('Opening payment page... Credits will be added after purchase.');
+  }, [credits]);
+
   const handleExport = useCallback(async (format: ExportFormat) => {
     if (!sequence || !exportCanvasRef.current) return;
+
+    // Check credits before starting
+    if (!credits.isTrial && !affordCheck.canRender) {
+      setInsufficientReason(affordCheck.reason || 'Insufficient credits');
+      setShowInsufficientDialog(true);
+      return;
+    }
 
     setIsExporting(true);
     setExportProgress(0);
 
     const sanitizedText = settings.text.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 20);
+    const costToDeduct = renderCost.total;
+
+    // Show trial message
+    if (credits.isTrial) {
+      toast.info('Free Trial Active — no credits will be deducted.');
+    }
 
     try {
       if (format === 'video') {
-        // Export as WebM video
         toast.info('Recording video... This may take a moment.');
         
         const videoBlob = await exportAsVideo(
@@ -75,9 +115,16 @@ const Index = () => {
 
         saveAs(videoBlob, `${sanitizedText}_matchcut.webm`);
         setLastExport({ filename: sanitizedText, frames: sequence.totalFrames, format: 'WebM' });
-        toast.success('Video exported! Ready to drop into your editor.');
+        
+        // Deduct credits after successful export
+        credits.deductRenderCredits(costToDeduct);
+        
+        if (credits.isTrial) {
+          toast.success('Video exported! (Free trial — no credits used)');
+        } else {
+          toast.success(`Video exported! (${costToDeduct} credits used)`);
+        }
       } else {
-        // Export as PNG sequence
         const { pngs, json } = await exportSequenceAsPngs(
           sequence,
           exportCanvasRef.current,
@@ -133,22 +180,40 @@ const Index = () => {
         saveAs(blob, `${sanitizedText}_matchcut.zip`);
 
         setLastExport({ filename: sanitizedText, frames: pngs.length, format: 'PNG' });
-        toast.success(`Exported ${pngs.length} frames successfully!`);
+        
+        // Deduct credits after successful export
+        credits.deductRenderCredits(costToDeduct);
+        
+        if (credits.isTrial) {
+          toast.success(`Exported ${pngs.length} frames! (Free trial — no credits used)`);
+        } else {
+          toast.success(`Exported ${pngs.length} frames! (${costToDeduct} credits used)`);
+        }
       }
     } catch (error) {
       console.error('Export failed:', error);
-      toast.error('Export failed. Please try again.');
+      // Refund credits on failure
+      credits.refundCredits(costToDeduct);
+      toast.error('Export failed. Credits have been refunded.');
     } finally {
       setIsExporting(false);
       setExportProgress(0);
     }
-  }, [sequence, settings]);
+  }, [sequence, settings, credits, renderCost, affordCheck]);
+
+  if (credits.isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
-      <main className="flex-1 container mx-auto p-4 grid grid-cols-1 lg:grid-cols-[280px_1fr_320px] gap-4 lg:gap-6">
+      <main className="flex-1 container mx-auto p-4 grid grid-cols-1 lg:grid-cols-[280px_1fr_340px] gap-4 lg:gap-6">
         {/* Left Panel - Input */}
         <aside className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in">
           <InputPanel
@@ -165,13 +230,24 @@ const Index = () => {
         </section>
 
         {/* Right Panel - Controls */}
-        <aside className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in">
+        <aside className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in overflow-y-auto max-h-[calc(100vh-140px)]">
           <ControlPanel
             settings={settings}
             onSettingsChange={handleSettingsChange}
             onExport={handleExport}
             isExporting={isExporting}
             exportProgress={exportProgress}
+            isTrial={credits.isTrial}
+            trialDaysLeft={credits.trialDaysLeft}
+            monthlyCredits={credits.monthlyCredits}
+            remainingDaily={credits.remainingDaily}
+            purchasedCredits={credits.purchasedCredits}
+            monthlyColor={credits.monthlyColor}
+            dailyColor={credits.dailyColor}
+            creditResetDate={credits.creditData?.creditResetDate}
+            renderCost={renderCost}
+            canAfford={affordCheck.canRender}
+            onPurchaseCredits={handlePurchaseCredits}
           />
         </aside>
       </main>
@@ -184,6 +260,17 @@ const Index = () => {
         width={1920}
         height={1080}
         className="hidden"
+      />
+
+      {/* Insufficient Credits Dialog */}
+      <InsufficientCreditsDialog
+        open={showInsufficientDialog}
+        onOpenChange={setShowInsufficientDialog}
+        reason={insufficientReason}
+        onBuyCredits={() => {
+          setShowInsufficientDialog(false);
+          setShowBuyDialog(true);
+        }}
       />
     </div>
   );
