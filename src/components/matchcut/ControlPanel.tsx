@@ -6,8 +6,11 @@ import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CURATED_FONTS } from '@/lib/fonts';
-import { Download, Shuffle, Settings2, Palette, Video, Image } from 'lucide-react';
+import { Shuffle, Settings2, Palette, Video, Image } from 'lucide-react';
 import { MatchCutSettings } from '@/lib/matchcut';
+import { CreditCost } from '@/lib/credits';
+import { CreditMeter } from '@/components/credits/CreditMeter';
+import { RenderCostBadge } from '@/components/credits/RenderCostBadge';
 
 export type ExportFormat = 'video' | 'png';
 
@@ -17,6 +20,18 @@ interface ControlPanelProps {
   onExport: (format: ExportFormat) => void;
   isExporting: boolean;
   exportProgress: number;
+  // Credit props
+  isTrial: boolean;
+  trialDaysLeft: number;
+  monthlyCredits: number;
+  remainingDaily: number;
+  purchasedCredits: number;
+  monthlyColor: 'green' | 'yellow' | 'red';
+  dailyColor: 'green' | 'yellow' | 'red';
+  creditResetDate?: string;
+  renderCost: CreditCost;
+  canAfford: boolean;
+  onPurchaseCredits: (pack: 'PACK_200' | 'PACK_500') => void;
 }
 
 export function ControlPanel({
@@ -25,6 +40,17 @@ export function ControlPanel({
   onExport,
   isExporting,
   exportProgress,
+  isTrial,
+  trialDaysLeft,
+  monthlyCredits,
+  remainingDaily,
+  purchasedCredits,
+  monthlyColor,
+  dailyColor,
+  creditResetDate,
+  renderCost,
+  canAfford,
+  onPurchaseCredits,
 }: ControlPanelProps) {
   const [showAllFonts, setShowAllFonts] = useState(false);
 
@@ -48,9 +74,25 @@ export function ControlPanel({
   };
 
   const displayedFonts = showAllFonts ? CURATED_FONTS : CURATED_FONTS.slice(0, 10);
+  const canExport = settings.text.trim() && (isTrial || canAfford);
 
   return (
-    <div className="flex flex-col gap-6 h-full">
+    <div className="flex flex-col gap-4 h-full">
+      {/* Credit Meter */}
+      <div className="pb-3 border-b border-border">
+        <CreditMeter
+          isTrial={isTrial}
+          trialDaysLeft={trialDaysLeft}
+          monthlyCredits={monthlyCredits}
+          remainingDaily={remainingDaily}
+          purchasedCredits={purchasedCredits}
+          monthlyColor={monthlyColor}
+          dailyColor={dailyColor}
+          creditResetDate={creditResetDate}
+          onPurchase={onPurchaseCredits}
+        />
+      </div>
+
       {/* Font Pool */}
       <div>
         <div className="flex items-center justify-between mb-3">
@@ -77,7 +119,7 @@ export function ControlPanel({
             </Button>
           </div>
         </div>
-        <ScrollArea className="h-[140px] rounded-md border border-border bg-secondary/30 p-3">
+        <ScrollArea className="h-[100px] rounded-md border border-border bg-secondary/30 p-3">
           <div className="space-y-2">
             {displayedFonts.map((font) => (
               <div key={font.name} className="flex items-center gap-2">
@@ -119,13 +161,13 @@ export function ControlPanel({
       </div>
 
       {/* Timing Controls */}
-      <div className="space-y-4">
+      <div className="space-y-3">
         <Label className="text-sm font-medium text-foreground flex items-center gap-2">
           <Settings2 className="w-4 h-4 text-primary" />
           Timing & Speed
         </Label>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           <div>
             <div className="flex justify-between text-xs text-muted-foreground mb-1">
               <span>Frames per card</span>
@@ -185,7 +227,7 @@ export function ControlPanel({
       </div>
 
       {/* Colors */}
-      <div className="space-y-3">
+      <div className="space-y-2">
         <Label className="text-sm font-medium text-foreground">Colors</Label>
         <div className="grid grid-cols-2 gap-3">
           <div>
@@ -265,10 +307,21 @@ export function ControlPanel({
       </div>
 
       {/* Export Buttons */}
-      <div className="mt-auto pt-4 border-t border-border space-y-2">
+      <div className="mt-auto pt-3 border-t border-border space-y-2">
+        {/* Cost Badge */}
+        {settings.text.trim() && (
+          <div className="flex justify-center mb-2">
+            <RenderCostBadge 
+              cost={renderCost} 
+              isTrial={isTrial} 
+              canAfford={canAfford} 
+            />
+          </div>
+        )}
+
         <Button
           onClick={() => onExport('video')}
-          disabled={isExporting || !settings.text.trim()}
+          disabled={isExporting || !canExport}
           className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-glow"
         >
           {isExporting ? (
@@ -286,7 +339,7 @@ export function ControlPanel({
         
         <Button
           onClick={() => onExport('png')}
-          disabled={isExporting || !settings.text.trim()}
+          disabled={isExporting || !canExport}
           variant="outline"
           className="w-full bg-secondary/50 border-border hover:bg-secondary hover:border-primary/50"
         >

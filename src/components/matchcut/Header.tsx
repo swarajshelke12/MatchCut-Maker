@@ -1,4 +1,5 @@
 import { Scissors } from 'lucide-react';
+import { AdminPanel } from '@/components/credits/AdminPanel';
 
 export function Header() {
   return (
@@ -20,6 +21,7 @@ export function Header() {
         
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span className="hidden sm:inline">Export to Premiere, After Effects, DaVinci & more</span>
+          <AdminPanel />
         </div>
       </div>
     </header>
