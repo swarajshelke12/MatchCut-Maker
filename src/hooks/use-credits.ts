@@ -4,14 +4,13 @@ import {
   CreditCost,
   loadCreditData,
   saveCreditData,
-  isInTrial,
-  getTrialDaysRemaining,
   calculateRenderCost,
   getTotalAvailableCredits,
   getRemainingDailyCredits,
   canAffordRender,
   deductCredits,
   addPurchasedCredits,
+  markOnboardingComplete,
   getCreditStatusColor,
   CREDIT_CONFIG,
 } from '@/lib/credits';
@@ -27,18 +26,18 @@ export function useCredits() {
     setIsLoading(false);
   }, []);
 
-  // Check trial status
-  const isTrial = creditData ? isInTrial(creditData) : false;
-  const trialDaysLeft = creditData ? getTrialDaysRemaining(creditData) : 0;
-
-  // Credit calculations
-  const totalCredits = creditData ? getTotalAvailableCredits(creditData) : 0;
-  const remainingDaily = creditData ? getRemainingDailyCredits(creditData) : 0;
+  // Credit values
+  const bonusCredits = creditData?.bonusCredits ?? 0;
   const monthlyCredits = creditData?.monthlyCredits ?? 0;
-  const purchasedCredits = creditData?.purchasedCredits ?? 0;
+  const dailyCredits = creditData?.dailyCredits ?? CREDIT_CONFIG.DAILY_LIMIT;
   const dailyUsed = creditData?.dailyCreditsUsed ?? 0;
+  const purchasedCredits = creditData?.purchasedCredits ?? 0;
+  const remainingDaily = creditData ? getRemainingDailyCredits(creditData) : 0;
+  const totalCredits = creditData ? getTotalAvailableCredits(creditData) : 0;
+  const isNewUser = creditData?.isNewUser ?? false;
 
   // Status colors
+  const bonusColor = getCreditStatusColor(bonusCredits, CREDIT_CONFIG.BONUS_CREDITS);
   const monthlyColor = getCreditStatusColor(monthlyCredits, CREDIT_CONFIG.MONTHLY_CREDITS);
   const dailyColor = getCreditStatusColor(remainingDaily, CREDIT_CONFIG.DAILY_LIMIT);
 
@@ -67,24 +66,28 @@ export function useCredits() {
 
   // Refund credits on failed render
   const refundCredits = useCallback((cost: number): void => {
-    if (!creditData || isTrial) return;
-    // Simply add credits back
+    if (!creditData) return;
+    // Add credits back to bonus (simplest approach)
     const updated = {
       ...creditData,
-      monthlyCredits: Math.min(
-        CREDIT_CONFIG.MONTHLY_CREDITS,
-        creditData.monthlyCredits + cost
-      ),
+      bonusCredits: creditData.bonusCredits + cost,
       dailyCreditsUsed: Math.max(0, creditData.dailyCreditsUsed - cost),
     };
     saveCreditData(updated);
     setCreditData(updated);
-  }, [creditData, isTrial]);
+  }, [creditData]);
 
   // Add purchased credits
   const purchaseCredits = useCallback((amount: number): void => {
     if (!creditData) return;
     const updated = addPurchasedCredits(creditData, amount);
+    setCreditData(updated);
+  }, [creditData]);
+
+  // Complete onboarding
+  const completeOnboarding = useCallback((): void => {
+    if (!creditData) return;
+    const updated = markOnboardingComplete(creditData);
     setCreditData(updated);
   }, [creditData]);
 
@@ -97,13 +100,15 @@ export function useCredits() {
   return {
     isLoading,
     creditData,
-    isTrial,
-    trialDaysLeft,
+    isNewUser,
     totalCredits,
-    remainingDaily,
+    bonusCredits,
     monthlyCredits,
+    dailyCredits,
+    remainingDaily,
     purchasedCredits,
     dailyUsed,
+    bonusColor,
     monthlyColor,
     dailyColor,
     getRenderCost,
@@ -111,6 +116,7 @@ export function useCredits() {
     deductRenderCredits,
     refundCredits,
     purchaseCredits,
+    completeOnboarding,
     openPaymentLink,
     config: CREDIT_CONFIG,
   };

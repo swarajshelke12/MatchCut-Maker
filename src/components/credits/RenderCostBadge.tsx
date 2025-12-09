@@ -1,4 +1,4 @@
-import { Coins, Gift } from 'lucide-react';
+import { Coins } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CreditCost } from '@/lib/credits';
 import {
@@ -10,52 +10,42 @@ import {
 
 interface RenderCostBadgeProps {
   cost: CreditCost;
-  isTrial: boolean;
   canAfford: boolean;
 }
 
-export function RenderCostBadge({ cost, isTrial, canAfford }: RenderCostBadgeProps) {
-  if (isTrial) {
-    return (
-      <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-primary/10 text-primary text-xs font-medium">
-        <Gift className="w-3.5 h-3.5" />
-        <span>Free Trial — no credits</span>
-      </div>
-    );
-  }
-
+export function RenderCostBadge({ cost, canAfford }: RenderCostBadgeProps) {
   return (
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger asChild>
           <div
             className={cn(
-              'flex items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium',
+              'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium cursor-help transition-colors',
               canAfford
-                ? 'bg-secondary/50 text-foreground'
-                : 'bg-red-500/10 text-red-400'
+                ? 'bg-secondary/50 text-foreground border border-border'
+                : 'bg-red-500/10 text-red-400 border border-red-500/20'
             )}
           >
-            <Coins className="w-3.5 h-3.5" />
-            <span>Cost: {cost.total} credits</span>
+            <Coins className="w-4 h-4" />
+            <span>Render Cost: {cost.total} credits</span>
           </div>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-xs">
-          <div className="space-y-1 text-xs">
-            <p className="font-medium">Cost Breakdown:</p>
+          <div className="space-y-1.5 text-xs">
+            <p className="font-medium text-foreground">Cost Breakdown:</p>
             <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-muted-foreground">
               <span>Base:</span>
-              <span className="text-right">{cost.base.toFixed(1)}</span>
+              <span className="text-right font-mono">{cost.base.toFixed(1)}</span>
               <span>Fonts ({Math.round(cost.fonts / 0.5)}):</span>
-              <span className="text-right">{cost.fonts.toFixed(1)}</span>
+              <span className="text-right font-mono">{cost.fonts.toFixed(1)}</span>
               <span>Duration:</span>
-              <span className="text-right">{cost.duration.toFixed(1)}</span>
+              <span className="text-right font-mono">{cost.duration.toFixed(1)}</span>
               <span>Frames:</span>
-              <span className="text-right">{cost.frames.toFixed(1)}</span>
+              <span className="text-right font-mono">{cost.frames.toFixed(1)}</span>
             </div>
-            <div className="pt-1 border-t border-border flex justify-between font-medium text-foreground">
+            <div className="pt-1.5 border-t border-border flex justify-between font-medium text-foreground">
               <span>Total:</span>
-              <span>{cost.total} credits</span>
+              <span className="font-mono">{cost.total} credits</span>
             </div>
           </div>
         </TooltipContent>

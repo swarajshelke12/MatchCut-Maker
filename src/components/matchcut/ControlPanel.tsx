@@ -5,12 +5,16 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Progress } from '@/components/ui/progress';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CURATED_FONTS } from '@/lib/fonts';
-import { Shuffle, Settings2, Palette, Video, Image } from 'lucide-react';
+import { ANIMATION_STYLES, getAnimationStyle, AnimationStyleId } from '@/lib/animationStyles';
+import { Shuffle, Settings2, Palette, Video, Image, Wand2, Clock } from 'lucide-react';
 import { MatchCutSettings } from '@/lib/matchcut';
-import { CreditCost } from '@/lib/credits';
+import { CreditCost, estimateRenderTime } from '@/lib/credits';
 import { CreditMeter } from '@/components/credits/CreditMeter';
 import { RenderCostBadge } from '@/components/credits/RenderCostBadge';
+import { cn } from '@/lib/utils';
 
 export type ExportFormat = 'video' | 'png';
 
@@ -21,17 +25,23 @@ interface ControlPanelProps {
   isExporting: boolean;
   exportProgress: number;
   // Credit props
-  isTrial: boolean;
-  trialDaysLeft: number;
+  bonusCredits: number;
   monthlyCredits: number;
   remainingDaily: number;
   purchasedCredits: number;
+  bonusColor: 'green' | 'yellow' | 'red';
   monthlyColor: 'green' | 'yellow' | 'red';
   dailyColor: 'green' | 'yellow' | 'red';
   creditResetDate?: string;
   renderCost: CreditCost;
   canAfford: boolean;
   onPurchaseCredits: (pack: 'PACK_200' | 'PACK_500') => void;
+  // Animation style
+  selectedAnimationStyle: string | null;
+  onAnimationStyleChange: (styleId: string) => void;
+  // Preview
+  totalFrames: number;
+  fps: number;
 }
 
 export function ControlPanel({
@@ -40,17 +50,21 @@ export function ControlPanel({
   onExport,
   isExporting,
   exportProgress,
-  isTrial,
-  trialDaysLeft,
+  bonusCredits,
   monthlyCredits,
   remainingDaily,
   purchasedCredits,
+  bonusColor,
   monthlyColor,
   dailyColor,
   creditResetDate,
   renderCost,
   canAfford,
   onPurchaseCredits,
+  selectedAnimationStyle,
+  onAnimationStyleChange,
+  totalFrames,
+  fps,
 }: ControlPanelProps) {
   const [showAllFonts, setShowAllFonts] = useState(false);
 
@@ -74,18 +88,19 @@ export function ControlPanel({
   };
 
   const displayedFonts = showAllFonts ? CURATED_FONTS : CURATED_FONTS.slice(0, 10);
-  const canExport = settings.text.trim() && (isTrial || canAfford);
+  const canExport = settings.text.trim() && canAfford;
+  const estimatedTime = estimateRenderTime(totalFrames, fps);
 
   return (
-    <div className="flex flex-col gap-4 h-full">
+    <div className="flex flex-col gap-5 h-full">
       {/* Credit Meter */}
-      <div className="pb-3 border-b border-border">
+      <div className="pb-4 border-b border-border">
         <CreditMeter
-          isTrial={isTrial}
-          trialDaysLeft={trialDaysLeft}
+          bonusCredits={bonusCredits}
           monthlyCredits={monthlyCredits}
           remainingDaily={remainingDaily}
           purchasedCredits={purchasedCredits}
+          bonusColor={bonusColor}
           monthlyColor={monthlyColor}
           dailyColor={dailyColor}
           creditResetDate={creditResetDate}
@@ -93,10 +108,33 @@ export function ControlPanel({
         />
       </div>
 
+      {/* Animation Style */}
+      <div className="space-y-3">
+        <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <Wand2 className="w-4 h-4 text-primary" />
+          Animation Style
+        </Label>
+        <Select value={selectedAnimationStyle || ''} onValueChange={onAnimationStyleChange}>
+          <SelectTrigger className="w-full bg-secondary/50 border-border">
+            <SelectValue placeholder="Choose a style preset" />
+          </SelectTrigger>
+          <SelectContent>
+            {ANIMATION_STYLES.map((style) => (
+              <SelectItem key={style.id} value={style.id}>
+                <div className="flex flex-col">
+                  <span className="font-medium">{style.name}</span>
+                  <span className="text-xs text-muted-foreground">{style.description}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Font Pool */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+          <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
             <Palette className="w-4 h-4 text-primary" />
             Font Pool ({settings.selectedFonts.length || 'All'})
           </Label>
@@ -119,7 +157,7 @@ export function ControlPanel({
             </Button>
           </div>
         </div>
-        <ScrollArea className="h-[100px] rounded-md border border-border bg-secondary/30 p-3">
+        <ScrollArea className="h-[100px] rounded-lg border border-border bg-secondary/20 p-3">
           <div className="space-y-2">
             {displayedFonts.map((font) => (
               <div key={font.name} className="flex items-center gap-2">
@@ -161,17 +199,17 @@ export function ControlPanel({
       </div>
 
       {/* Timing Controls */}
-      <div className="space-y-3">
-        <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+      <div className="space-y-4">
+        <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Settings2 className="w-4 h-4 text-primary" />
           Timing & Speed
         </Label>
 
-        <div className="space-y-2">
+        <div className="space-y-3">
           <div>
-            <div className="flex justify-between text-xs text-muted-foreground mb-1">
+            <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
               <span>Frames per card</span>
-              <span className="font-mono">{settings.framesPerCard}</span>
+              <span className="font-mono font-medium text-foreground">{settings.framesPerCard}</span>
             </div>
             <Slider
               value={[settings.framesPerCard]}
@@ -179,13 +217,14 @@ export function ControlPanel({
               max={10}
               step={1}
               onValueChange={(v) => onSettingsChange({ framesPerCard: v[0] })}
+              className="py-1"
             />
           </div>
 
           <div>
-            <div className="flex justify-between text-xs text-muted-foreground mb-1">
-              <span>Duration (seconds)</span>
-              <span className="font-mono">{settings.duration}s</span>
+            <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
+              <span>Duration</span>
+              <span className="font-mono font-medium text-foreground">{settings.duration}s</span>
             </div>
             <Slider
               value={[settings.duration]}
@@ -193,13 +232,14 @@ export function ControlPanel({
               max={10}
               step={0.5}
               onValueChange={(v) => onSettingsChange({ duration: v[0] })}
+              className="py-1"
             />
           </div>
 
           <div>
-            <div className="flex justify-between text-xs text-muted-foreground mb-1">
+            <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
               <span>FPS</span>
-              <span className="font-mono">{settings.fps}</span>
+              <span className="font-mono font-medium text-foreground">{settings.fps}</span>
             </div>
             <Slider
               value={[settings.fps]}
@@ -207,13 +247,14 @@ export function ControlPanel({
               max={60}
               step={6}
               onValueChange={(v) => onSettingsChange({ fps: v[0] })}
+              className="py-1"
             />
           </div>
 
           <div>
-            <div className="flex justify-between text-xs text-muted-foreground mb-1">
+            <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
               <span>Font size</span>
-              <span className="font-mono">{settings.fontSize}px</span>
+              <span className="font-mono font-medium text-foreground">{settings.fontSize}px</span>
             </div>
             <Slider
               value={[settings.fontSize]}
@@ -221,17 +262,18 @@ export function ControlPanel({
               max={300}
               step={12}
               onValueChange={(v) => onSettingsChange({ fontSize: v[0] })}
+              className="py-1"
             />
           </div>
         </div>
       </div>
 
       {/* Colors */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium text-foreground">Colors</Label>
+      <div className="space-y-3">
+        <Label className="text-sm font-semibold text-foreground">Colors</Label>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label className="text-xs text-muted-foreground mb-1 block">
+            <Label className="text-xs text-muted-foreground mb-1.5 block">
               Foreground
             </Label>
             <div className="flex gap-2">
@@ -241,7 +283,7 @@ export function ControlPanel({
                 onChange={(e) =>
                   onSettingsChange({ foregroundColor: e.target.value })
                 }
-                className="w-10 h-8 p-0.5 bg-secondary border-border cursor-pointer"
+                className="w-10 h-9 p-0.5 bg-secondary border-border cursor-pointer rounded-lg"
               />
               <Input
                 type="text"
@@ -249,12 +291,12 @@ export function ControlPanel({
                 onChange={(e) =>
                   onSettingsChange({ foregroundColor: e.target.value })
                 }
-                className="flex-1 h-8 bg-secondary/50 border-border font-mono text-xs"
+                className="flex-1 h-9 bg-secondary/50 border-border font-mono text-xs"
               />
             </div>
           </div>
           <div>
-            <Label className="text-xs text-muted-foreground mb-1 block">
+            <Label className="text-xs text-muted-foreground mb-1.5 block">
               Background
             </Label>
             <div className="flex gap-2">
@@ -264,7 +306,7 @@ export function ControlPanel({
                 onChange={(e) =>
                   onSettingsChange({ backgroundColor: e.target.value })
                 }
-                className="w-10 h-8 p-0.5 bg-secondary border-border cursor-pointer"
+                className="w-10 h-9 p-0.5 bg-secondary border-border cursor-pointer rounded-lg"
               />
               <Input
                 type="text"
@@ -272,7 +314,7 @@ export function ControlPanel({
                 onChange={(e) =>
                   onSettingsChange({ backgroundColor: e.target.value })
                 }
-                className="flex-1 h-8 bg-secondary/50 border-border font-mono text-xs"
+                className="flex-1 h-9 bg-secondary/50 border-border font-mono text-xs"
                 placeholder="transparent"
               />
             </div>
@@ -281,8 +323,8 @@ export function ControlPanel({
       </div>
 
       {/* Seed */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium text-foreground flex items-center gap-2">
+      <div className="space-y-3">
+        <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
           <Shuffle className="w-4 h-4 text-primary" />
           Randomization Seed
         </Label>
@@ -293,41 +335,55 @@ export function ControlPanel({
             onChange={(e) =>
               onSettingsChange({ seed: parseInt(e.target.value) || 0 })
             }
-            className="flex-1 bg-secondary/50 border-border font-mono"
+            className="flex-1 bg-secondary/50 border-border font-mono h-9"
           />
           <Button
             variant="outline"
             size="icon"
             onClick={randomizeSeed}
-            className="bg-secondary/50 border-border hover:bg-secondary hover:border-primary/50"
+            className="h-9 w-9 bg-secondary/50 border-border hover:bg-secondary hover:border-primary/50"
           >
             <Shuffle className="w-4 h-4" />
           </Button>
         </div>
       </div>
 
-      {/* Export Buttons */}
-      <div className="mt-auto pt-3 border-t border-border space-y-2">
-        {/* Cost Badge */}
+      {/* Export Section */}
+      <div className="mt-auto pt-4 border-t border-border space-y-3">
+        {/* Render Info */}
         {settings.text.trim() && (
-          <div className="flex justify-center mb-2">
+          <div className="flex items-center justify-between">
             <RenderCostBadge 
               cost={renderCost} 
-              isTrial={isTrial} 
               canAfford={canAfford} 
             />
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Clock className="w-3.5 h-3.5" />
+              <span>{estimatedTime}</span>
+            </div>
           </div>
         )}
 
+        {/* Progress Bar */}
+        {isExporting && (
+          <div className="space-y-2">
+            <Progress value={exportProgress * 100} className="h-2" />
+            <p className="text-xs text-center text-muted-foreground">
+              Rendering... {Math.round(exportProgress * 100)}%
+            </p>
+          </div>
+        )}
+
+        {/* Export Buttons */}
         <Button
           onClick={() => onExport('video')}
           disabled={isExporting || !canExport}
-          className="w-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-glow"
+          className="w-full h-11 bg-primary text-primary-foreground hover:bg-primary/90 shadow-glow font-semibold"
         >
           {isExporting ? (
             <>
               <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin mr-2" />
-              Generating... {Math.round(exportProgress * 100)}%
+              Generating...
             </>
           ) : (
             <>
@@ -341,7 +397,7 @@ export function ControlPanel({
           onClick={() => onExport('png')}
           disabled={isExporting || !canExport}
           variant="outline"
-          className="w-full bg-secondary/50 border-border hover:bg-secondary hover:border-primary/50"
+          className="w-full h-10 bg-secondary/50 border-border hover:bg-secondary hover:border-primary/50"
         >
           <Image className="w-4 h-4 mr-2" />
           Export PNG Sequence

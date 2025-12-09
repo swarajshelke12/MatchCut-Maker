@@ -9,17 +9,12 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Settings, User, Plus, RotateCcw, History, AlertCircle } from 'lucide-react';
-import { CreditData, loadCreditData, saveCreditData, CREDIT_CONFIG, formatResetDate, isInTrial, getTrialDaysRemaining } from '@/lib/credits';
+import { CreditData, loadCreditData, saveCreditData, CREDIT_CONFIG, formatResetDate } from '@/lib/credits';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-
-// Admin emails that can access the panel
-const ADMIN_EMAILS = ['admin@example.com']; // Add your admin emails here
 
 interface RenderLog {
   id: string;
@@ -81,6 +76,21 @@ export function AdminPanel() {
     setAddCreditsAmount('100');
   };
 
+  const handleAddBonusCredits = () => {
+    if (!creditData) return;
+    const amount = parseInt(addCreditsAmount) || 0;
+    if (amount <= 0) return;
+
+    const updated = {
+      ...creditData,
+      bonusCredits: creditData.bonusCredits + amount,
+    };
+    saveCreditData(updated);
+    setCreditData(updated);
+    toast.success(`Added ${amount} bonus credits`);
+    setAddCreditsAmount('100');
+  };
+
   const handleResetDaily = () => {
     if (!creditData) return;
     const updated = { ...creditData, dailyCreditsUsed: 0 };
@@ -97,12 +107,18 @@ export function AdminPanel() {
     toast.success('Monthly credits reset');
   };
 
-  const handleResetTrial = () => {
+  const handleResetAll = () => {
     if (!creditData) return;
-    const updated = { ...creditData, trialStartDate: new Date().toISOString() };
+    const updated = {
+      ...creditData,
+      bonusCredits: CREDIT_CONFIG.BONUS_CREDITS,
+      monthlyCredits: CREDIT_CONFIG.MONTHLY_CREDITS,
+      dailyCreditsUsed: 0,
+      purchasedCredits: 0,
+    };
     saveCreditData(updated);
     setCreditData(updated);
-    toast.success('Trial reset to today');
+    toast.success('All credits reset to defaults');
   };
 
   const failedRenders = renderLogs.filter(log => !log.success);
@@ -136,7 +152,7 @@ export function AdminPanel() {
             <div className="space-y-3">
               <h3 className="text-sm font-medium flex items-center gap-2">
                 <User className="w-4 h-4 text-primary" />
-                Current User
+                Credit Status
               </h3>
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
@@ -144,14 +160,8 @@ export function AdminPanel() {
                   <p className="font-mono text-xs break-all">{creditData?.userId}</p>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Trial Status:</span>
-                  <p>
-                    {creditData && isInTrial(creditData) ? (
-                      <Badge variant="default">{getTrialDaysRemaining(creditData)} days left</Badge>
-                    ) : (
-                      <Badge variant="secondary">Expired</Badge>
-                    )}
-                  </p>
+                  <span className="text-muted-foreground">Bonus Credits:</span>
+                  <p className="font-medium text-primary">{creditData?.bonusCredits}</p>
                 </div>
                 <div>
                   <span className="text-muted-foreground">Monthly Credits:</span>
@@ -192,7 +202,10 @@ export function AdminPanel() {
                   min="1"
                 />
                 <Button onClick={handleAddCredits} size="sm">
-                  Add Credits
+                  Add Purchased
+                </Button>
+                <Button onClick={handleAddBonusCredits} size="sm" variant="outline">
+                  Add Bonus
                 </Button>
               </div>
 
@@ -205,9 +218,9 @@ export function AdminPanel() {
                   <RotateCcw className="w-3 h-3 mr-1" />
                   Reset Monthly
                 </Button>
-                <Button onClick={handleResetTrial} variant="outline" size="sm">
+                <Button onClick={handleResetAll} variant="outline" size="sm">
                   <RotateCcw className="w-3 h-3 mr-1" />
-                  Reset Trial
+                  Reset All
                 </Button>
               </div>
             </div>
