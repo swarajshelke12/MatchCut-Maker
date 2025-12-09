@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Header } from '@/components/matchcut/Header';
@@ -7,8 +7,9 @@ import { InputPanel } from '@/components/matchcut/InputPanel';
 import { PreviewCanvas } from '@/components/matchcut/PreviewCanvas';
 import { ControlPanel, ExportFormat } from '@/components/matchcut/ControlPanel';
 import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
-import { BuyCreditsDialog } from '@/components/credits/BuyCreditsDialog';
+import { OnboardingDialog, useOnboarding } from '@/components/onboarding/OnboardingDialog';
 import { PRESETS, PresetKey, DEFAULT_IMPACT_FONTS } from '@/lib/fonts';
+import { ANIMATION_STYLES, getAnimationStyle } from '@/lib/animationStyles';
 import { MatchCutSettings, generateSequence, exportAsVideo, exportSequenceAsPngs, MatchCutSequence } from '@/lib/matchcut';
 import { useCredits } from '@/hooks/use-credits';
 import { toast } from 'sonner';
@@ -28,16 +29,31 @@ const DEFAULT_SETTINGS: MatchCutSettings = {
 const Index = () => {
   const [settings, setSettings] = useState<MatchCutSettings>(DEFAULT_SETTINGS);
   const [selectedPreset, setSelectedPreset] = useState<PresetKey | null>(null);
+  const [selectedAnimationStyle, setSelectedAnimationStyle] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
   const [lastExport, setLastExport] = useState<{ filename: string; frames: number; format: string } | null>(null);
   const [showInsufficientDialog, setShowInsufficientDialog] = useState(false);
   const [insufficientReason, setInsufficientReason] = useState('');
-  const [showBuyDialog, setShowBuyDialog] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const exportCanvasRef = useRef<HTMLCanvasElement>(null);
 
   // Credit system hook
   const credits = useCredits();
+  
+  // Onboarding hook
+  const { shouldShow: shouldShowOnboarding } = useOnboarding();
+
+  // Show onboarding for new users
+  useEffect(() => {
+    if (credits.isNewUser && shouldShowOnboarding && !credits.isLoading) {
+      setShowOnboarding(true);
+      toast.success('Welcome! You received 500 Bonus Credits.', {
+        duration: 5000,
+        icon: '🎉',
+      });
+    }
+  }, [credits.isNewUser, credits.isLoading, shouldShowOnboarding]);
 
   const sequence: MatchCutSequence | null = useMemo(() => {
     if (!settings.text.trim()) return null;
@@ -61,11 +77,20 @@ const Index = () => {
     if (selectedPreset && !('text' in newSettings)) {
       setSelectedPreset(null);
     }
-  }, [selectedPreset]);
+    // Clear animation style if user manually changes settings
+    if (selectedAnimationStyle && !('text' in newSettings)) {
+      // Don't clear if only text changed
+      const styleKeys = ['fps', 'duration', 'framesPerCard', 'selectedFonts', 'foregroundColor', 'backgroundColor'];
+      if (Object.keys(newSettings).some(key => styleKeys.includes(key))) {
+        setSelectedAnimationStyle(null);
+      }
+    }
+  }, [selectedPreset, selectedAnimationStyle]);
 
   const handlePresetSelect = useCallback((presetKey: PresetKey) => {
     const preset = PRESETS[presetKey];
     setSelectedPreset(presetKey);
+    setSelectedAnimationStyle(null);
     setSettings((prev) => ({
       ...prev,
       fps: preset.fps,
@@ -75,18 +100,46 @@ const Index = () => {
     }));
   }, []);
 
+  const handleAnimationStyleChange = useCallback((styleId: string) => {
+    const style = getAnimationStyle(styleId);
+    if (!style) return;
+    
+    setSelectedAnimationStyle(styleId);
+    setSelectedPreset(null);
+    setSettings((prev) => ({
+      ...prev,
+      fps: style.fps,
+      duration: style.duration,
+      framesPerCard: style.framesPerCard,
+      selectedFonts: style.fonts,
+      foregroundColor: style.foregroundColor,
+      backgroundColor: style.backgroundColor,
+    }));
+  }, []);
+
   const handlePurchaseCredits = useCallback((pack: 'PACK_200' | 'PACK_500') => {
     credits.openPaymentLink(pack);
-    // For demo: simulate adding credits after redirect
-    // In production, this would be handled via Stripe webhook
     toast.info('Opening payment page... Credits will be added after purchase.');
   }, [credits]);
+
+  const handleOnboardingComplete = useCallback(() => {
+    setShowOnboarding(false);
+    credits.completeOnboarding();
+  }, [credits]);
+
+  const handleRegeneratePreview = useCallback(() => {
+    // Just randomize the seed to regenerate
+    setSettings((prev) => ({
+      ...prev,
+      seed: Math.floor(Math.random() * 999999),
+    }));
+  }, []);
 
   const handleExport = useCallback(async (format: ExportFormat) => {
     if (!sequence || !exportCanvasRef.current) return;
 
     // Check credits before starting
-    if (!credits.isTrial && !affordCheck.canRender) {
+    if (!affordCheck.canRender) {
       setInsufficientReason(affordCheck.reason || 'Insufficient credits');
       setShowInsufficientDialog(true);
       return;
@@ -97,11 +150,6 @@ const Index = () => {
 
     const sanitizedText = settings.text.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 20);
     const costToDeduct = renderCost.total;
-
-    // Show trial message
-    if (credits.isTrial) {
-      toast.info('Free Trial Active — no credits will be deducted.');
-    }
 
     try {
       if (format === 'video') {
@@ -118,12 +166,7 @@ const Index = () => {
         
         // Deduct credits after successful export
         credits.deductRenderCredits(costToDeduct);
-        
-        if (credits.isTrial) {
-          toast.success('Video exported! (Free trial — no credits used)');
-        } else {
-          toast.success(`Video exported! (${costToDeduct} credits used)`);
-        }
+        toast.success(`Video exported! (${costToDeduct} credits used)`);
       } else {
         const { pngs, json } = await exportSequenceAsPngs(
           sequence,
@@ -183,12 +226,7 @@ const Index = () => {
         
         // Deduct credits after successful export
         credits.deductRenderCredits(costToDeduct);
-        
-        if (credits.isTrial) {
-          toast.success(`Exported ${pngs.length} frames! (Free trial — no credits used)`);
-        } else {
-          toast.success(`Exported ${pngs.length} frames! (${costToDeduct} credits used)`);
-        }
+        toast.success(`Exported ${pngs.length} frames! (${costToDeduct} credits used)`);
       }
     } catch (error) {
       console.error('Export failed:', error);
@@ -204,7 +242,10 @@ const Index = () => {
   if (credits.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-10 h-10 border-3 border-primary/30 border-t-primary rounded-full animate-spin" />
+          <p className="text-sm text-muted-foreground">Loading MatchCut Maker...</p>
+        </div>
       </div>
     );
   }
@@ -213,9 +254,9 @@ const Index = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
-      <main className="flex-1 container mx-auto p-4 grid grid-cols-1 lg:grid-cols-[280px_1fr_340px] gap-4 lg:gap-6">
+      <main className="flex-1 container mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-[300px_1fr_360px] gap-4 lg:gap-6">
         {/* Left Panel - Input */}
-        <aside className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in">
+        <aside className="bg-card rounded-xl border border-border p-5 shadow-card animate-fade-in">
           <InputPanel
             text={settings.text}
             onTextChange={(text) => handleSettingsChange({ text })}
@@ -225,29 +266,36 @@ const Index = () => {
         </aside>
 
         {/* Center - Preview */}
-        <section className="bg-card rounded-xl border border-border p-4 shadow-card min-h-[400px] lg:min-h-0 animate-fade-in">
-          <PreviewCanvas sequence={sequence} />
+        <section className="bg-card rounded-xl border border-border p-5 shadow-card min-h-[400px] lg:min-h-0 animate-fade-in">
+          <PreviewCanvas 
+            sequence={sequence} 
+            onRegenerate={handleRegeneratePreview}
+          />
         </section>
 
         {/* Right Panel - Controls */}
-        <aside className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in overflow-y-auto max-h-[calc(100vh-140px)]">
+        <aside className="bg-card rounded-xl border border-border p-5 shadow-card animate-fade-in overflow-y-auto max-h-[calc(100vh-140px)]">
           <ControlPanel
             settings={settings}
             onSettingsChange={handleSettingsChange}
             onExport={handleExport}
             isExporting={isExporting}
             exportProgress={exportProgress}
-            isTrial={credits.isTrial}
-            trialDaysLeft={credits.trialDaysLeft}
+            bonusCredits={credits.bonusCredits}
             monthlyCredits={credits.monthlyCredits}
             remainingDaily={credits.remainingDaily}
             purchasedCredits={credits.purchasedCredits}
+            bonusColor={credits.bonusColor}
             monthlyColor={credits.monthlyColor}
             dailyColor={credits.dailyColor}
             creditResetDate={credits.creditData?.creditResetDate}
             renderCost={renderCost}
             canAfford={affordCheck.canRender}
             onPurchaseCredits={handlePurchaseCredits}
+            selectedAnimationStyle={selectedAnimationStyle}
+            onAnimationStyleChange={handleAnimationStyleChange}
+            totalFrames={sequence?.totalFrames || Math.ceil(settings.fps * settings.duration)}
+            fps={settings.fps}
           />
         </aside>
       </main>
@@ -262,6 +310,12 @@ const Index = () => {
         className="hidden"
       />
 
+      {/* Onboarding Dialog */}
+      <OnboardingDialog
+        open={showOnboarding}
+        onComplete={handleOnboardingComplete}
+      />
+
       {/* Insufficient Credits Dialog */}
       <InsufficientCreditsDialog
         open={showInsufficientDialog}
@@ -269,7 +323,7 @@ const Index = () => {
         reason={insufficientReason}
         onBuyCredits={() => {
           setShowInsufficientDialog(false);
-          setShowBuyDialog(true);
+          handlePurchaseCredits('PACK_500');
         }}
       />
     </div>

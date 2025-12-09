@@ -1,19 +1,26 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Play, Pause, RotateCcw, Maximize2 } from 'lucide-react';
+import { Play, Pause, RotateCcw, Maximize2, RefreshCw } from 'lucide-react';
 import { MatchCutSequence, renderFrameToCanvas } from '@/lib/matchcut';
 
 interface PreviewCanvasProps {
   sequence: MatchCutSequence | null;
+  onRegenerate?: () => void;
 }
 
-export function PreviewCanvas({ sequence }: PreviewCanvasProps) {
+export function PreviewCanvas({ sequence, onRegenerate }: PreviewCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentFrame, setCurrentFrame] = useState(0);
   const animationRef = useRef<number>();
   const lastTimeRef = useRef<number>(0);
+
+  // Reset to first frame when sequence changes
+  useEffect(() => {
+    setCurrentFrame(0);
+    setIsPlaying(false);
+  }, [sequence?.seed, sequence?.totalFrames]);
 
   const renderCurrentFrame = useCallback(() => {
     if (!canvasRef.current || !sequence) return;
@@ -75,13 +82,20 @@ export function PreviewCanvas({ sequence }: PreviewCanvasProps) {
     setCurrentFrame(value[0]);
   };
 
+  // Calculate progress percentage for visual feedback
+  const progressPercentage = useMemo(() => {
+    if (!sequence || sequence.totalFrames === 0) return 0;
+    return ((currentFrame + 1) / sequence.totalFrames) * 100;
+  }, [currentFrame, sequence]);
+
   if (!sequence) {
     return (
       <div className="flex flex-col h-full">
         <div className="flex-1 checkerboard rounded-lg flex items-center justify-center border border-border">
-          <div className="text-center text-muted-foreground">
-            <Maximize2 className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p className="text-sm">Enter text to preview your MatchCut</p>
+          <div className="text-center text-muted-foreground p-8">
+            <Maximize2 className="w-16 h-16 mx-auto mb-4 opacity-20" />
+            <p className="text-base font-medium mb-2">Enter text to preview your MatchCut</p>
+            <p className="text-sm opacity-70">Type or paste your text in the left panel</p>
           </div>
         </div>
       </div>
@@ -90,6 +104,7 @@ export function PreviewCanvas({ sequence }: PreviewCanvasProps) {
 
   return (
     <div className="flex flex-col h-full gap-4">
+      {/* Preview Area */}
       <div className="flex-1 checkerboard rounded-lg overflow-hidden border border-border relative">
         <canvas
           ref={canvasRef}
@@ -98,38 +113,21 @@ export function PreviewCanvas({ sequence }: PreviewCanvasProps) {
           className="w-full h-full object-contain"
         />
         
-        {/* Current font indicator */}
-        <div className="absolute bottom-3 left-3 bg-background/80 backdrop-blur-sm rounded px-2 py-1 text-xs font-mono text-muted-foreground">
+        {/* Font indicator */}
+        <div className="absolute bottom-3 left-3 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-mono text-foreground shadow-md">
           {sequence.frames[currentFrame]?.fontName}
+        </div>
+
+        {/* Frame counter */}
+        <div className="absolute bottom-3 right-3 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-mono text-muted-foreground shadow-md">
+          {currentFrame + 1} / {sequence.totalFrames}
         </div>
       </div>
 
       {/* Playback controls */}
-      <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handlePlayPause}
-            className="bg-secondary/50 border-border hover:bg-secondary hover:border-primary/50"
-          >
-            {isPlaying ? (
-              <Pause className="w-4 h-4" />
-            ) : (
-              <Play className="w-4 h-4" />
-            )}
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleReset}
-            className="bg-secondary/50 border-border hover:bg-secondary hover:border-primary/50"
-          >
-            <RotateCcw className="w-4 h-4" />
-          </Button>
-        </div>
-
-        <div className="flex-1">
+      <div className="space-y-3">
+        {/* Progress bar */}
+        <div className="relative">
           <Slider
             value={[currentFrame]}
             min={0}
@@ -140,14 +138,51 @@ export function PreviewCanvas({ sequence }: PreviewCanvasProps) {
           />
         </div>
 
-        <div className="text-xs font-mono text-muted-foreground min-w-[80px] text-right">
-          {currentFrame + 1} / {sequence.totalFrames}
+        {/* Control buttons */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handlePlayPause}
+              className="h-10 w-10 bg-secondary/50 border-border hover:bg-secondary hover:border-primary/50"
+            >
+              {isPlaying ? (
+                <Pause className="w-4 h-4" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleReset}
+              className="h-10 w-10 bg-secondary/50 border-border hover:bg-secondary hover:border-primary/50"
+            >
+              <RotateCcw className="w-4 h-4" />
+            </Button>
+            {onRegenerate && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onRegenerate}
+                className="h-10 px-3 bg-secondary/50 border-border hover:bg-secondary hover:border-primary/50 gap-2"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Regenerate
+              </Button>
+            )}
+          </div>
+
+          <div className="text-xs text-muted-foreground">
+            {sequence.fps} fps • {sequence.settings.duration}s duration
+          </div>
         </div>
       </div>
 
       {/* Tips */}
-      <p className="text-xs text-muted-foreground text-center">
-        Tip: Use 1–2 frames per card for a punchy look. Seed ensures reproducibility.
+      <p className="text-xs text-muted-foreground text-center bg-secondary/30 rounded-lg py-2 px-4">
+        Tip: Use 1–2 frames per card for a punchy look. Change the seed for different font sequences.
       </p>
     </div>
   );

@@ -2,13 +2,15 @@
 
 export interface CreditData {
   userId: string;
-  trialStartDate: string | null;
+  bonusCredits: number;
   monthlyCredits: number;
+  dailyCredits: number;
   dailyCreditsUsed: number;
   purchasedCredits: number;
   creditResetDate: string;
   dailyResetDate: string;
   createdAt: string;
+  isNewUser: boolean;
 }
 
 export interface CreditCost {
@@ -21,7 +23,7 @@ export interface CreditCost {
 
 // Configuration
 export const CREDIT_CONFIG = {
-  TRIAL_DAYS: 7,
+  BONUS_CREDITS: 500,
   MONTHLY_CREDITS: 500,
   DAILY_LIMIT: 100,
   MIN_RENDER_COST: 20,
@@ -31,8 +33,8 @@ export const CREDIT_CONFIG = {
     PACK_500: 'https://buy.stripe.com/test_your_500_credits_link', // Replace with actual Stripe Payment Link
   },
   PACK_PRICES: {
-    PACK_200: { credits: 200, price: 1.99, label: '200 Credits - $1.99' },
-    PACK_500: { credits: 500, price: 3.99, label: '500 Credits - $3.99' },
+    PACK_200: { credits: 200, price: 99, currency: '₹', label: '200 Credits' },
+    PACK_500: { credits: 500, price: 199, currency: '₹', label: '500 Credits' },
   },
 } as const;
 
@@ -60,13 +62,15 @@ function initializeCreditData(): CreditData {
   const now = new Date();
   return {
     userId: generateUserId(),
-    trialStartDate: now.toISOString(),
+    bonusCredits: CREDIT_CONFIG.BONUS_CREDITS,
     monthlyCredits: CREDIT_CONFIG.MONTHLY_CREDITS,
+    dailyCredits: CREDIT_CONFIG.DAILY_LIMIT,
     dailyCreditsUsed: 0,
     purchasedCredits: 0,
     creditResetDate: getNextMonthResetDate(),
     dailyResetDate: getDateString(now),
     createdAt: now.toISOString(),
+    isNewUser: true,
   };
 }
 
@@ -76,7 +80,9 @@ export function loadCreditData(): CreditData {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const data = JSON.parse(stored) as CreditData;
-      return checkAndResetCredits(data);
+      // Migrate old data structure if needed
+      const migratedData = migrateOldData(data);
+      return checkAndResetCredits(migratedData);
     }
   } catch (e) {
     console.error('Failed to load credit data:', e);
@@ -85,6 +91,39 @@ export function loadCreditData(): CreditData {
   const newData = initializeCreditData();
   saveCreditData(newData);
   return newData;
+}
+
+// Migrate old data format to new format
+function migrateOldData(data: any): CreditData {
+  // If old structure with trialStartDate, migrate it
+  if ('trialStartDate' in data && !('bonusCredits' in data)) {
+    return {
+      userId: data.userId || generateUserId(),
+      bonusCredits: CREDIT_CONFIG.BONUS_CREDITS,
+      monthlyCredits: data.monthlyCredits ?? CREDIT_CONFIG.MONTHLY_CREDITS,
+      dailyCredits: CREDIT_CONFIG.DAILY_LIMIT,
+      dailyCreditsUsed: data.dailyCreditsUsed ?? 0,
+      purchasedCredits: data.purchasedCredits ?? 0,
+      creditResetDate: data.creditResetDate || getNextMonthResetDate(),
+      dailyResetDate: data.dailyResetDate || getDateString(),
+      createdAt: data.createdAt || new Date().toISOString(),
+      isNewUser: false,
+    };
+  }
+  
+  // Ensure all fields exist
+  return {
+    userId: data.userId || generateUserId(),
+    bonusCredits: data.bonusCredits ?? 0,
+    monthlyCredits: data.monthlyCredits ?? CREDIT_CONFIG.MONTHLY_CREDITS,
+    dailyCredits: data.dailyCredits ?? CREDIT_CONFIG.DAILY_LIMIT,
+    dailyCreditsUsed: data.dailyCreditsUsed ?? 0,
+    purchasedCredits: data.purchasedCredits ?? 0,
+    creditResetDate: data.creditResetDate || getNextMonthResetDate(),
+    dailyResetDate: data.dailyResetDate || getDateString(),
+    createdAt: data.createdAt || new Date().toISOString(),
+    isNewUser: data.isNewUser ?? false,
+  };
 }
 
 // Save credit data to localStorage
@@ -105,6 +144,7 @@ function checkAndResetCredits(data: CreditData): CreditData {
   // Reset daily credits if new day
   if (data.dailyResetDate !== today) {
     updated.dailyCreditsUsed = 0;
+    updated.dailyCredits = CREDIT_CONFIG.DAILY_LIMIT;
     updated.dailyResetDate = today;
   }
 
@@ -115,34 +155,11 @@ function checkAndResetCredits(data: CreditData): CreditData {
     updated.creditResetDate = getNextMonthResetDate();
   }
 
-  if (updated !== data) {
+  if (JSON.stringify(updated) !== JSON.stringify(data)) {
     saveCreditData(updated);
   }
 
   return updated;
-}
-
-// Check if user is in trial period
-export function isInTrial(data: CreditData): boolean {
-  if (!data.trialStartDate) return false;
-  
-  const trialStart = new Date(data.trialStartDate);
-  const trialEnd = new Date(trialStart);
-  trialEnd.setDate(trialEnd.getDate() + CREDIT_CONFIG.TRIAL_DAYS);
-  
-  return new Date() < trialEnd;
-}
-
-// Get remaining trial days
-export function getTrialDaysRemaining(data: CreditData): number {
-  if (!data.trialStartDate) return 0;
-  
-  const trialStart = new Date(data.trialStartDate);
-  const trialEnd = new Date(trialStart);
-  trialEnd.setDate(trialEnd.getDate() + CREDIT_CONFIG.TRIAL_DAYS);
-  
-  const remaining = Math.ceil((trialEnd.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
-  return Math.max(0, remaining);
 }
 
 // Calculate credit cost for a render
@@ -165,24 +182,19 @@ export function calculateRenderCost(
   return { base, fonts, duration, frames, total };
 }
 
-// Get available credits (monthly + purchased)
+// Get total available credits (all pools)
 export function getTotalAvailableCredits(data: CreditData): number {
-  return data.monthlyCredits + data.purchasedCredits;
+  return data.dailyCredits - data.dailyCreditsUsed + data.bonusCredits + data.monthlyCredits + data.purchasedCredits;
 }
 
 // Get remaining daily credits
 export function getRemainingDailyCredits(data: CreditData): number {
-  return Math.max(0, CREDIT_CONFIG.DAILY_LIMIT - data.dailyCreditsUsed);
+  return Math.max(0, data.dailyCredits - data.dailyCreditsUsed);
 }
 
 // Check if user can afford a render
 export function canAffordRender(data: CreditData, cost: number): { canAfford: boolean; reason?: string } {
-  // Trial users always can
-  if (isInTrial(data)) {
-    return { canAfford: true };
-  }
-
-  // Check daily limit
+  // Check daily limit first
   const remainingDaily = getRemainingDailyCredits(data);
   if (remainingDaily < cost) {
     return { 
@@ -191,12 +203,12 @@ export function canAffordRender(data: CreditData, cost: number): { canAfford: bo
     };
   }
 
-  // Check total credits
-  const totalCredits = getTotalAvailableCredits(data);
-  if (totalCredits < cost) {
+  // Check total credits across all pools
+  const totalAvailable = data.bonusCredits + data.monthlyCredits + data.purchasedCredits;
+  if (totalAvailable < cost) {
     return { 
       canAfford: false, 
-      reason: "You don't have enough credits. Buy credits or wait for next reset." 
+      reason: "You don't have enough credits. Buy credits or wait for next monthly reset." 
     };
   }
 
@@ -204,31 +216,32 @@ export function canAffordRender(data: CreditData, cost: number): { canAfford: bo
 }
 
 // Deduct credits after successful render
+// Order: Daily → Bonus → Monthly → Purchased
 export function deductCredits(data: CreditData, cost: number): CreditData {
-  // Don't deduct during trial
-  if (isInTrial(data)) {
-    return data;
-  }
-
   let remainingCost = cost;
   const updated = { ...data };
 
-  // Deduct from monthly first
-  if (updated.monthlyCredits >= remainingCost) {
-    updated.monthlyCredits -= remainingCost;
-    remainingCost = 0;
-  } else {
-    remainingCost -= updated.monthlyCredits;
-    updated.monthlyCredits = 0;
+  // Update daily usage first (this is a limit, not deducted from)
+  updated.dailyCreditsUsed += cost;
+
+  // Deduct from bonus credits first
+  if (updated.bonusCredits > 0) {
+    const deductFromBonus = Math.min(updated.bonusCredits, remainingCost);
+    updated.bonusCredits -= deductFromBonus;
+    remainingCost -= deductFromBonus;
   }
 
-  // Then from purchased
-  if (remainingCost > 0) {
+  // Then from monthly credits
+  if (remainingCost > 0 && updated.monthlyCredits > 0) {
+    const deductFromMonthly = Math.min(updated.monthlyCredits, remainingCost);
+    updated.monthlyCredits -= deductFromMonthly;
+    remainingCost -= deductFromMonthly;
+  }
+
+  // Finally from purchased credits
+  if (remainingCost > 0 && updated.purchasedCredits > 0) {
     updated.purchasedCredits = Math.max(0, updated.purchasedCredits - remainingCost);
   }
-
-  // Update daily usage
-  updated.dailyCreditsUsed += cost;
 
   saveCreditData(updated);
   return updated;
@@ -237,6 +250,13 @@ export function deductCredits(data: CreditData, cost: number): CreditData {
 // Add purchased credits
 export function addPurchasedCredits(data: CreditData, amount: number): CreditData {
   const updated = { ...data, purchasedCredits: data.purchasedCredits + amount };
+  saveCreditData(updated);
+  return updated;
+}
+
+// Mark user as no longer new (after onboarding)
+export function markOnboardingComplete(data: CreditData): CreditData {
+  const updated = { ...data, isNewUser: false };
   saveCreditData(updated);
   return updated;
 }
@@ -253,4 +273,17 @@ export function getCreditStatusColor(current: number, max: number): 'green' | 'y
 export function formatResetDate(dateString: string): string {
   const date = new Date(dateString);
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+// Estimate render time based on settings
+export function estimateRenderTime(totalFrames: number, fps: number): string {
+  // Approximate: ~50ms per frame for rendering + some overhead
+  const estimatedMs = totalFrames * 50 + 1000;
+  const seconds = Math.ceil(estimatedMs / 1000);
+  
+  if (seconds < 60) {
+    return `~${seconds}s`;
+  }
+  const minutes = Math.ceil(seconds / 60);
+  return `~${minutes}m`;
 }
