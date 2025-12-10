@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CURATED_FONTS } from '@/lib/fonts';
 import { ANIMATION_STYLES, getAnimationStyle, AnimationStyleId } from '@/lib/animationStyles';
-import { Shuffle, Settings2, Palette, Video, Image, Wand2, Clock, Newspaper } from 'lucide-react';
+import { Shuffle, Settings2, Palette, Video, Image, Wand2, Clock } from 'lucide-react';
 import { MatchCutSettings } from '@/lib/matchcut';
 import { CreditCost, estimateRenderTime } from '@/lib/credits';
 import { CreditMeter } from '@/components/credits/CreditMeter';
@@ -121,14 +121,9 @@ export function ControlPanel({
           <SelectContent>
             {ANIMATION_STYLES.map((style) => (
               <SelectItem key={style.id} value={style.id}>
-                <div className="flex items-center gap-2">
-                  {style.id === 'newspaper-headline' && (
-                    <Newspaper className="w-4 h-4 text-amber-700" />
-                  )}
-                  <div className="flex flex-col">
-                    <span className="font-medium">{style.name}</span>
-                    <span className="text-xs text-muted-foreground">{style.description}</span>
-                  </div>
+                <div className="flex flex-col">
+                  <span className="font-medium">{style.name}</span>
+                  <span className="text-xs text-muted-foreground">{style.description}</span>
                 </div>
               </SelectItem>
             ))}

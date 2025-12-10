@@ -10,10 +10,6 @@ export interface MatchCutSettings {
   backgroundColor: string;
   fontSize: number;
   seed: number;
-  // Newspaper style effects
-  grainOverlay?: boolean;
-  scaleJitter?: { min: number; max: number };
-  rotationJitter?: { min: number; max: number };
 }
 
 export interface FrameData {
@@ -77,13 +73,7 @@ export function renderFrameToCanvas(
   fontFamily: string,
   fontSize: number,
   fgColor: string,
-  bgColor: string,
-  options?: {
-    scaleJitter?: { min: number; max: number };
-    rotationJitter?: { min: number; max: number };
-    grainOverlay?: boolean;
-    frameIndex?: number;
-  }
+  bgColor: string
 ): void {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
@@ -94,31 +84,6 @@ export function renderFrameToCanvas(
   } else {
     ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-  }
-
-  // Save context for transforms
-  ctx.save();
-
-  // Apply jitter effects if specified
-  if (options?.scaleJitter || options?.rotationJitter) {
-    const frameIndex = options.frameIndex || 0;
-    const seed = frameIndex * 7919; // Prime for randomness
-    
-    ctx.translate(canvas.width / 2, canvas.height / 2);
-    
-    if (options.rotationJitter) {
-      const range = options.rotationJitter.max - options.rotationJitter.min;
-      const rotation = options.rotationJitter.min + (((seed % 1000) / 1000) * range);
-      ctx.rotate((rotation * Math.PI) / 180);
-    }
-    
-    if (options.scaleJitter) {
-      const range = options.scaleJitter.max - options.scaleJitter.min;
-      const scale = options.scaleJitter.min + (((seed * 3 % 1000) / 1000) * range);
-      ctx.scale(scale, scale);
-    }
-    
-    ctx.translate(-canvas.width / 2, -canvas.height / 2);
   }
   
   // Draw text
@@ -153,30 +118,6 @@ export function renderFrameToCanvas(
   lines.forEach((line, index) => {
     ctx.fillText(line, canvas.width / 2, startY + index * lineHeight);
   });
-
-  ctx.restore();
-
-  // Apply grain overlay effect
-  if (options?.grainOverlay) {
-    ctx.save();
-    ctx.globalAlpha = 0.06;
-    ctx.globalCompositeOperation = 'multiply';
-    
-    // Simple noise pattern
-    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const data = imageData.data;
-    const frameIndex = options.frameIndex || 0;
-    
-    for (let i = 0; i < data.length; i += 4) {
-      const noise = Math.random() * 40 - 20;
-      data[i] = Math.min(255, Math.max(0, data[i] + noise));
-      data[i + 1] = Math.min(255, Math.max(0, data[i + 1] + noise));
-      data[i + 2] = Math.min(255, Math.max(0, data[i + 2] + noise));
-    }
-    
-    ctx.putImageData(imageData, 0, 0);
-    ctx.restore();
-  }
 }
 
 // Sleep helper for frame timing
@@ -235,20 +176,14 @@ export async function exportAsVideo(
   for (let i = 0; i < frames.length; i++) {
     const frame = frames[i];
     
-    // Render the frame with style effects
+    // Render the frame
     renderFrameToCanvas(
       canvas,
       sequence.text,
       frame.fontFamily,
       settings.fontSize,
       settings.foregroundColor,
-      settings.backgroundColor === 'transparent' ? 'rgba(0,0,0,0)' : settings.backgroundColor,
-      {
-        scaleJitter: settings.scaleJitter,
-        rotationJitter: settings.rotationJitter,
-        grainOverlay: settings.grainOverlay,
-        frameIndex: i,
-      }
+      settings.backgroundColor === 'transparent' ? 'rgba(0,0,0,0)' : settings.backgroundColor
     );
     
     // Wait for the frame duration
@@ -284,13 +219,7 @@ export async function exportSequenceAsPngs(
       frame.fontFamily,
       settings.fontSize,
       settings.foregroundColor,
-      'transparent',
-      {
-        scaleJitter: settings.scaleJitter,
-        rotationJitter: settings.rotationJitter,
-        grainOverlay: settings.grainOverlay,
-        frameIndex: i,
-      }
+      'transparent'
     );
     
     const blob = await new Promise<Blob>((resolve) => {
