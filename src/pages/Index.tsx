@@ -10,7 +10,7 @@ import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCred
 import { OnboardingDialog, useOnboarding } from '@/components/onboarding/OnboardingDialog';
 import { PRESETS, PresetKey, DEFAULT_IMPACT_FONTS } from '@/lib/fonts';
 import { ANIMATION_STYLES, getAnimationStyle } from '@/lib/animationStyles';
-import { MatchCutSettings, generateSequence, exportAsVideo, exportSequenceAsPngs, MatchCutSequence } from '@/lib/matchcut';
+import { MatchCutSettings, generateSequence, exportAsVideo, exportSequenceAsPngs, MatchCutSequence, getAspectRatio } from '@/lib/matchcut';
 import { useCredits } from '@/hooks/use-credits';
 import { toast } from 'sonner';
 
@@ -24,6 +24,7 @@ const DEFAULT_SETTINGS: MatchCutSettings = {
   backgroundColor: '#000000',
   fontSize: 180,
   seed: 42,
+  aspectRatio: '16:9',
 };
 
 const Index = () => {
@@ -302,11 +303,11 @@ const Index = () => {
 
       <Footer lastExport={lastExport} />
 
-      {/* Hidden canvas for export */}
+      {/* Hidden canvas for export - dynamically sized based on aspect ratio */}
       <canvas
         ref={exportCanvasRef}
-        width={1920}
-        height={1080}
+        width={getAspectRatio(settings.aspectRatio).width}
+        height={getAspectRatio(settings.aspectRatio).height}
         className="hidden"
       />
 
