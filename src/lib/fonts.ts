@@ -134,6 +134,11 @@ export const CURATED_FONTS: FontOption[] = [
   { name: 'Germania One', family: "'Germania One', serif", category: 'serif' },
   { name: 'Stalinist One', family: "'Stalinist One', sans-serif", category: 'serif' },
   { name: 'Stardos Stencil', family: "'Stardos Stencil', sans-serif", category: 'serif' },
+  { name: 'Merriweather', family: "'Merriweather', serif", category: 'serif' },
+  { name: 'EB Garamond', family: "'EB Garamond', serif", category: 'serif' },
+  { name: 'Lora', family: "'Lora', serif", category: 'serif' },
+  { name: 'Old Standard TT', family: "'Old Standard TT', serif", category: 'serif' },
+  { name: 'Spectral', family: "'Spectral', serif", category: 'serif' },
   
   // SANS - Clean but bold
   { name: 'Gruppo', family: "'Gruppo', sans-serif", category: 'sans' },

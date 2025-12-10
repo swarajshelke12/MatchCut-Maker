@@ -10,6 +10,9 @@ export interface AnimationStyle {
   duration: number;
   foregroundColor: string;
   backgroundColor: string;
+  grainOverlay?: boolean;
+  scaleJitter?: { min: number; max: number };
+  rotationJitter?: { min: number; max: number };
 }
 
 // Get fonts by category
@@ -105,6 +108,20 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     duration: 2,
     foregroundColor: '#ff6b35',
     backgroundColor: '#1a1a2e',
+  },
+  {
+    id: 'newspaper-headline',
+    name: 'Newspaper Headline',
+    description: 'Classic newspaper with fast jitter',
+    fonts: ['Playfair Display', 'Merriweather', 'EB Garamond', 'Lora', 'Old Standard TT', 'Spectral', 'Cinzel', 'Ultra', 'Abril Fatface', 'Graduate'],
+    framesPerCard: 1,
+    fps: 60,
+    duration: 1.8,
+    foregroundColor: '#000000',
+    backgroundColor: '#f2f2e9',
+    grainOverlay: true,
+    scaleJitter: { min: 1.0, max: 1.02 },
+    rotationJitter: { min: -1, max: 1 },
   },
 ];
 

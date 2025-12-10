@@ -114,6 +114,10 @@ const Index = () => {
       selectedFonts: style.fonts,
       foregroundColor: style.foregroundColor,
       backgroundColor: style.backgroundColor,
+      // Apply style-specific effects
+      grainOverlay: style.grainOverlay,
+      scaleJitter: style.scaleJitter,
+      rotationJitter: style.rotationJitter,
     }));
   }, []);
 
