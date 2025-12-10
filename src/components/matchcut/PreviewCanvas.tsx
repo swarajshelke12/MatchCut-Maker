@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Play, Pause, RotateCcw, Maximize2, RefreshCw } from 'lucide-react';
 import { MatchCutSequence, renderFrameToCanvas } from '@/lib/matchcut';
+import { cn } from '@/lib/utils';
 
 interface PreviewCanvasProps {
   sequence: MatchCutSequence | null;
@@ -34,7 +35,13 @@ export function PreviewCanvas({ sequence, onRegenerate }: PreviewCanvasProps) {
       frame.fontFamily,
       sequence.settings.fontSize,
       sequence.settings.foregroundColor,
-      sequence.settings.backgroundColor
+      sequence.settings.backgroundColor,
+      {
+        scaleJitter: sequence.settings.scaleJitter,
+        rotationJitter: sequence.settings.rotationJitter,
+        grainOverlay: sequence.settings.grainOverlay,
+        frameIndex: currentFrame,
+      }
     );
   }, [sequence, currentFrame]);
 
@@ -102,10 +109,16 @@ export function PreviewCanvas({ sequence, onRegenerate }: PreviewCanvasProps) {
     );
   }
 
+  // Check if newspaper style is active
+  const isNewspaperStyle = sequence.settings.grainOverlay;
+
   return (
     <div className="flex flex-col h-full gap-4">
       {/* Preview Area */}
-      <div className="flex-1 checkerboard rounded-lg overflow-hidden border border-border relative">
+      <div className={cn(
+        "flex-1 checkerboard rounded-lg overflow-hidden border border-border relative",
+        isNewspaperStyle && "newspaper-grain"
+      )}>
         <canvas
           ref={canvasRef}
           width={1920}
