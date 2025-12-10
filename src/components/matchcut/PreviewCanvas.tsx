@@ -2,7 +2,8 @@ import { useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Play, Pause, RotateCcw, Maximize2, RefreshCw } from 'lucide-react';
-import { MatchCutSequence, renderFrameToCanvas } from '@/lib/matchcut';
+import { MatchCutSequence, renderFrameToCanvas, getAspectRatio } from '@/lib/matchcut';
+import { cn } from '@/lib/utils';
 
 interface PreviewCanvasProps {
   sequence: MatchCutSequence | null;
@@ -16,11 +17,22 @@ export function PreviewCanvas({ sequence, onRegenerate }: PreviewCanvasProps) {
   const animationRef = useRef<number>();
   const lastTimeRef = useRef<number>(0);
 
+  // Get aspect ratio dimensions
+  const aspectRatio = sequence ? getAspectRatio(sequence.settings.aspectRatio) : { width: 1920, height: 1080, id: '16:9' };
+  const aspectClass = useMemo(() => {
+    switch (aspectRatio.id) {
+      case '9:16': return 'aspect-[9/16]';
+      case '1:1': return 'aspect-square';
+      case '4:5': return 'aspect-[4/5]';
+      default: return 'aspect-video';
+    }
+  }, [aspectRatio.id]);
+
   // Reset to first frame when sequence changes
   useEffect(() => {
     setCurrentFrame(0);
     setIsPlaying(false);
-  }, [sequence?.seed, sequence?.totalFrames]);
+  }, [sequence?.seed, sequence?.totalFrames, sequence?.settings.aspectRatio]);
 
   const renderCurrentFrame = useCallback(() => {
     if (!canvasRef.current || !sequence) return;
@@ -105,12 +117,12 @@ export function PreviewCanvas({ sequence, onRegenerate }: PreviewCanvasProps) {
   return (
     <div className="flex flex-col h-full gap-4">
       {/* Preview Area */}
-      <div className="flex-1 checkerboard rounded-lg overflow-hidden border border-border relative">
+      <div className="flex-1 checkerboard rounded-lg overflow-hidden border border-border relative flex items-center justify-center">
         <canvas
           ref={canvasRef}
-          width={1920}
-          height={1080}
-          className="w-full h-full object-contain"
+          width={aspectRatio.width}
+          height={aspectRatio.height}
+          className={cn("max-w-full max-h-full object-contain", aspectClass)}
         />
         
         {/* Font indicator */}

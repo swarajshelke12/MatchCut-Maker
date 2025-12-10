@@ -9,8 +9,8 @@ import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CURATED_FONTS } from '@/lib/fonts';
 import { ANIMATION_STYLES, getAnimationStyle, AnimationStyleId } from '@/lib/animationStyles';
-import { Shuffle, Settings2, Palette, Video, Image, Wand2, Clock } from 'lucide-react';
-import { MatchCutSettings } from '@/lib/matchcut';
+import { Shuffle, Settings2, Palette, Video, Image, Wand2, Clock, Monitor } from 'lucide-react';
+import { MatchCutSettings, ASPECT_RATIOS, AspectRatioId } from '@/lib/matchcut';
 import { CreditCost, estimateRenderTime } from '@/lib/credits';
 import { CreditMeter } from '@/components/credits/CreditMeter';
 import { RenderCostBadge } from '@/components/credits/RenderCostBadge';
@@ -124,6 +124,32 @@ export function ControlPanel({
                 <div className="flex flex-col">
                   <span className="font-medium">{style.name}</span>
                   <span className="text-xs text-muted-foreground">{style.description}</span>
+                </div>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Aspect Ratio */}
+      <div className="space-y-3">
+        <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <Monitor className="w-4 h-4 text-primary" />
+          Aspect Ratio
+        </Label>
+        <Select 
+          value={settings.aspectRatio} 
+          onValueChange={(value: AspectRatioId) => onSettingsChange({ aspectRatio: value })}
+        >
+          <SelectTrigger className="w-full bg-secondary/50 border-border">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {ASPECT_RATIOS.map((ar) => (
+              <SelectItem key={ar.id} value={ar.id}>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono font-medium">{ar.id}</span>
+                  <span className="text-xs text-muted-foreground">{ar.label}</span>
                 </div>
               </SelectItem>
             ))}

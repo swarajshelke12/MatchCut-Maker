@@ -1,5 +1,26 @@
 import { CURATED_FONTS, shuffleFonts } from './fonts';
 
+// Aspect ratio definitions
+export type AspectRatioId = '16:9' | '9:16' | '1:1' | '4:5';
+
+export interface AspectRatioPreset {
+  id: AspectRatioId;
+  label: string;
+  width: number;
+  height: number;
+}
+
+export const ASPECT_RATIOS: AspectRatioPreset[] = [
+  { id: '16:9', label: 'Landscape (1920×1080)', width: 1920, height: 1080 },
+  { id: '9:16', label: 'Vertical (1080×1920)', width: 1080, height: 1920 },
+  { id: '1:1', label: 'Square (1080×1080)', width: 1080, height: 1080 },
+  { id: '4:5', label: 'Portrait (1080×1350)', width: 1080, height: 1350 },
+];
+
+export function getAspectRatio(id: AspectRatioId): AspectRatioPreset {
+  return ASPECT_RATIOS.find(ar => ar.id === id) || ASPECT_RATIOS[0];
+}
+
 export interface MatchCutSettings {
   text: string;
   fps: number;
@@ -10,6 +31,7 @@ export interface MatchCutSettings {
   backgroundColor: string;
   fontSize: number;
   seed: number;
+  aspectRatio: AspectRatioId;
 }
 
 export interface FrameData {
@@ -86,23 +108,29 @@ export function renderFrameToCanvas(
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
   
-  // Draw text
+  // Draw text with safe area padding (10% on each side)
+  const safeAreaPadding = 0.1;
+  const safeWidth = canvas.width * (1 - safeAreaPadding * 2);
+  const safeHeight = canvas.height * (1 - safeAreaPadding * 2);
+  
   ctx.fillStyle = fgColor;
-  ctx.font = `bold ${fontSize}px ${fontFamily}`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   
-  // Word wrap if needed
+  // Word wrap within safe area
   const words = text.split(' ');
-  const maxWidth = canvas.width * 0.9;
   const lines: string[] = [];
   let currentLine = '';
+  
+  // Auto-fit font size within safe area
+  let adjustedFontSize = fontSize;
+  ctx.font = `bold ${adjustedFontSize}px ${fontFamily}`;
   
   for (const word of words) {
     const testLine = currentLine ? `${currentLine} ${word}` : word;
     const metrics = ctx.measureText(testLine);
     
-    if (metrics.width > maxWidth && currentLine) {
+    if (metrics.width > safeWidth && currentLine) {
       lines.push(currentLine);
       currentLine = word;
     } else {
@@ -111,12 +139,22 @@ export function renderFrameToCanvas(
   }
   if (currentLine) lines.push(currentLine);
   
-  const lineHeight = fontSize * 1.2;
-  const totalHeight = lines.length * lineHeight;
-  const startY = (canvas.height - totalHeight) / 2 + lineHeight / 2;
+  const lineHeight = adjustedFontSize * 1.2;
+  let totalHeight = lines.length * lineHeight;
+  
+  // Scale down if text doesn't fit in safe height
+  if (totalHeight > safeHeight) {
+    const scale = safeHeight / totalHeight;
+    adjustedFontSize = Math.floor(adjustedFontSize * scale);
+    ctx.font = `bold ${adjustedFontSize}px ${fontFamily}`;
+  }
+  
+  const finalLineHeight = adjustedFontSize * 1.2;
+  const finalTotalHeight = lines.length * finalLineHeight;
+  const startY = (canvas.height - finalTotalHeight) / 2 + finalLineHeight / 2;
   
   lines.forEach((line, index) => {
-    ctx.fillText(line, canvas.width / 2, startY + index * lineHeight);
+    ctx.fillText(line, canvas.width / 2, startY + index * finalLineHeight);
   });
 }
 
@@ -238,9 +276,14 @@ export async function exportSequenceAsPngs(
     }
   }
   
+  const aspectRatio = getAspectRatio(settings.aspectRatio);
+  
   const jsonData = {
     text: sequence.text,
     fps: sequence.fps,
+    aspectRatio: settings.aspectRatio,
+    width: aspectRatio.width,
+    height: aspectRatio.height,
     totalFrames: sequence.totalFrames,
     seed: sequence.seed,
     settings: {
@@ -249,6 +292,7 @@ export async function exportSequenceAsPngs(
       fontSize: settings.fontSize,
       foregroundColor: settings.foregroundColor,
       backgroundColor: settings.backgroundColor,
+      aspectRatio: settings.aspectRatio,
     },
     frames: frames.map((f, i) => ({
       frameNumber: f.frameNumber,
