@@ -12,6 +12,7 @@ import {
   addPurchasedCredits,
   markOnboardingComplete,
   getCreditStatusColor,
+  getBonusCreditStatusColor,
   CREDIT_CONFIG,
 } from '@/lib/credits';
 
@@ -36,8 +37,8 @@ export function useCredits() {
   const totalCredits = creditData ? getTotalAvailableCredits(creditData) : 0;
   const isNewUser = creditData?.isNewUser ?? false;
 
-  // Status colors
-  const bonusColor = getCreditStatusColor(bonusCredits, CREDIT_CONFIG.BONUS_CREDITS);
+  // Status colors - bonus uses special function since it depletes permanently
+  const bonusColor = getBonusCreditStatusColor(bonusCredits);
   const monthlyColor = getCreditStatusColor(monthlyCredits, CREDIT_CONFIG.MONTHLY_CREDITS);
   const dailyColor = getCreditStatusColor(remainingDaily, CREDIT_CONFIG.DAILY_LIMIT);
 
