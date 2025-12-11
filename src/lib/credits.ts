@@ -182,33 +182,34 @@ export function calculateRenderCost(
   return { base, fonts, duration, frames, total };
 }
 
-// Get total available credits (all pools)
+// Get total available credits (spendable pools only - not daily limit)
 export function getTotalAvailableCredits(data: CreditData): number {
-  return data.dailyCredits - data.dailyCreditsUsed + data.bonusCredits + data.monthlyCredits + data.purchasedCredits;
+  // Daily is a limit/cap, not actual credits. Only count actual credit pools.
+  return data.bonusCredits + data.monthlyCredits + data.purchasedCredits;
 }
 
-// Get remaining daily credits
+// Get remaining daily limit (how much more can be used today)
 export function getRemainingDailyCredits(data: CreditData): number {
   return Math.max(0, data.dailyCredits - data.dailyCreditsUsed);
 }
 
 // Check if user can afford a render
 export function canAffordRender(data: CreditData, cost: number): { canAfford: boolean; reason?: string } {
-  // Check daily limit first
+  // Check daily limit first (this is a rate limit, not actual credits)
   const remainingDaily = getRemainingDailyCredits(data);
   if (remainingDaily < cost) {
     return { 
       canAfford: false, 
-      reason: 'Daily credit limit reached. Try again tomorrow or buy extra credits.' 
+      reason: `Daily limit reached (${data.dailyCreditsUsed}/${data.dailyCredits} used today). Try again tomorrow.` 
     };
   }
 
-  // Check total credits across all pools
-  const totalAvailable = data.bonusCredits + data.monthlyCredits + data.purchasedCredits;
+  // Check total credits across spendable pools
+  const totalAvailable = getTotalAvailableCredits(data);
   if (totalAvailable < cost) {
     return { 
       canAfford: false, 
-      reason: "You don't have enough credits. Buy credits or wait for next monthly reset." 
+      reason: `Not enough credits (${totalAvailable} available, need ${cost}). Buy credits or wait for monthly reset.` 
     };
   }
 
@@ -263,9 +264,18 @@ export function markOnboardingComplete(data: CreditData): CreditData {
 
 // Get credit status color
 export function getCreditStatusColor(current: number, max: number): 'green' | 'yellow' | 'red' {
+  if (max === 0) return 'red';
   const percentage = (current / max) * 100;
   if (percentage > 50) return 'green';
   if (percentage > 20) return 'yellow';
+  return 'red';
+}
+
+// Get bonus credit status color (special handling since bonus depletes permanently)
+export function getBonusCreditStatusColor(current: number): 'green' | 'yellow' | 'red' {
+  if (current <= 0) return 'red';
+  if (current > 250) return 'green';
+  if (current > 100) return 'yellow';
   return 'red';
 }
 

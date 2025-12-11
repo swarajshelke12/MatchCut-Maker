@@ -70,30 +70,35 @@ export function CreditMeter({
 
         {/* Credit Bars */}
         <div className="space-y-3">
-          {/* Bonus Credits */}
+          {/* Bonus Credits - Always show, even when depleted */}
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="space-y-1.5 cursor-help">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Gift className={cn('w-3.5 h-3.5', colorClasses[bonusColor])} />
-                    <span className="text-xs text-muted-foreground">Bonus</span>
+                    <Gift className={cn('w-3.5 h-3.5', bonusCredits > 0 ? colorClasses[bonusColor] : 'text-muted-foreground/50')} />
+                    <span className={cn('text-xs', bonusCredits > 0 ? 'text-muted-foreground' : 'text-muted-foreground/50')}>
+                      Bonus {bonusCredits === 0 && '(depleted)'}
+                    </span>
                   </div>
-                  <span className={cn('text-xs font-mono font-medium', colorClasses[bonusColor])}>
+                  <span className={cn('text-xs font-mono font-medium', bonusCredits > 0 ? colorClasses[bonusColor] : 'text-muted-foreground/50')}>
                     {bonusCredits}
                   </span>
                 </div>
-                <div className={cn('h-2 rounded-full overflow-hidden', bgColorClasses[bonusColor])}>
+                <div className={cn('h-2 rounded-full overflow-hidden', bonusCredits > 0 ? bgColorClasses[bonusColor] : 'bg-muted/30')}>
                   <div
-                    className={cn('h-full rounded-full transition-all duration-500', progressColorClasses[bonusColor])}
+                    className={cn('h-full rounded-full transition-all duration-500', bonusCredits > 0 ? progressColorClasses[bonusColor] : 'bg-muted/50')}
                     style={{ width: `${Math.min(100, (bonusCredits / bonusMax) * 100)}%` }}
                   />
                 </div>
               </div>
             </TooltipTrigger>
-            <TooltipContent side="left" className="max-w-[200px]">
+            <TooltipContent side="left" className="max-w-[220px]">
               <p className="text-xs">
-                <span className="font-medium text-primary">Bonus credits are used first.</span> These are one-time credits from welcome bonuses or promotions.
+                <span className="font-medium text-primary">Bonus credits are used first.</span>
+                {bonusCredits > 0 
+                  ? ' These are one-time welcome credits that do not reset.' 
+                  : ' Your bonus credits are fully used. They do not reset.'}
               </p>
             </TooltipContent>
           </Tooltip>
