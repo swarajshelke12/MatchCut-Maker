@@ -1,7 +1,7 @@
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { PRESETS, PresetKey } from '@/lib/fonts';
-import { Type, Upload } from 'lucide-react';
+import { Type, Upload, X } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -27,6 +27,12 @@ export function InputPanel({ text, onTextChange, onPresetSelect, selectedPreset 
     }
   };
 
+  const getCounterColor = () => {
+    if (text.length >= 48) return 'text-destructive';
+    if (text.length >= 40) return 'text-yellow-500';
+    return 'text-muted-foreground';
+  };
+
   return (
     <div className="flex flex-col gap-6 h-full">
       <div>
@@ -40,14 +46,26 @@ export function InputPanel({ text, onTextChange, onPresetSelect, selectedPreset 
       </div>
 
       <div className="flex-1">
-        <Textarea
-          value={text}
-          onChange={(e) => handleTextChange(e.target.value)}
-          placeholder="KEEP GOING"
-          maxLength={MAX_TEXT_LENGTH}
-          className="h-32 resize-none bg-secondary/30 border-border focus:border-primary focus:ring-primary/20 text-foreground placeholder:text-muted-foreground/50 font-mono text-lg rounded-xl"
-        />
-        <p className="text-xs text-muted-foreground mt-2">
+        <div className="relative">
+          <Textarea
+            value={text}
+            onChange={(e) => handleTextChange(e.target.value)}
+            placeholder="KEEP GOING"
+            maxLength={MAX_TEXT_LENGTH}
+            className="h-32 resize-none bg-secondary/30 border-border focus:border-primary focus:ring-primary/20 text-foreground placeholder:text-muted-foreground/50 font-mono text-lg rounded-xl pr-10"
+          />
+          {text.length > 0 && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onTextChange('')}
+              className="absolute top-2 right-2 h-6 w-6 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
+        <p className={`text-xs mt-2 transition-colors ${getCounterColor()}`}>
           {text.length} / {MAX_TEXT_LENGTH} characters
         </p>
       </div>
