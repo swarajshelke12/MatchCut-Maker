@@ -104,6 +104,15 @@ const Index = () => {
     }));
   }, []);
 
+  const handleCustomFontsSelect = useCallback((fonts: string[]) => {
+    setSelectedPreset(null);
+    setSelectedAnimationStyle(null);
+    setSettings((prev) => ({
+      ...prev,
+      selectedFonts: fonts,
+    }));
+  }, []);
+
   const handleAnimationStyleChange = useCallback((styleId: string) => {
     const style = getAnimationStyle(styleId);
     if (!style) return;
@@ -274,6 +283,7 @@ const Index = () => {
             onTextChange={(text) => handleSettingsChange({ text })}
             onPresetSelect={handlePresetSelect}
             selectedPreset={selectedPreset}
+            onCustomFontsSelect={handleCustomFontsSelect}
           />
         </aside>
 

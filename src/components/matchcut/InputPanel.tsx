@@ -1,7 +1,9 @@
+import { useState } from 'react';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { PRESETS, PresetKey } from '@/lib/fonts';
-import { Type, X } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { PRESETS, PresetKey, CURATED_FONTS, shuffleFonts } from '@/lib/fonts';
+import { Type, X, Shuffle } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -16,14 +18,54 @@ interface InputPanelProps {
   onTextChange: (text: string) => void;
   onPresetSelect: (preset: PresetKey) => void;
   selectedPreset: PresetKey | null;
+  onCustomFontsSelect?: (fonts: string[]) => void;
 }
 
 const MAX_TEXT_LENGTH = 50;
 
-export function InputPanel({ text, onTextChange, onPresetSelect, selectedPreset }: InputPanelProps) {
+const MAX_CUSTOM_FONTS = CURATED_FONTS.length;
+const MIN_CUSTOM_FONTS = 3;
+
+export function InputPanel({ text, onTextChange, onPresetSelect, selectedPreset, onCustomFontsSelect }: InputPanelProps) {
+  const [customFontCount, setCustomFontCount] = useState<string>('20');
+  const [isCustomMode, setIsCustomMode] = useState(false);
+
   const handleTextChange = (value: string) => {
     if (value.length <= MAX_TEXT_LENGTH) {
       onTextChange(value);
+    }
+  };
+
+  const handlePresetChange = (value: string) => {
+    if (value === 'custom') {
+      setIsCustomMode(true);
+      generateCustomFonts();
+    } else {
+      setIsCustomMode(false);
+      onPresetSelect(value as PresetKey);
+    }
+  };
+
+  const generateCustomFonts = () => {
+    const count = Math.max(MIN_CUSTOM_FONTS, Math.min(MAX_CUSTOM_FONTS, parseInt(customFontCount) || 20));
+    const allFontNames = CURATED_FONTS.map(f => f.name);
+    const seed = Date.now();
+    const randomFonts = shuffleFonts(allFontNames, seed, count);
+    // Remove duplicates while preserving order
+    const uniqueFonts = [...new Set(randomFonts)];
+    onCustomFontsSelect?.(uniqueFonts);
+  };
+
+  const handleCustomCountChange = (value: string) => {
+    setCustomFontCount(value);
+  };
+
+  const handleCustomCountBlur = () => {
+    const num = parseInt(customFontCount) || 20;
+    const clamped = Math.max(MIN_CUSTOM_FONTS, Math.min(MAX_CUSTOM_FONTS, num));
+    setCustomFontCount(clamped.toString());
+    if (isCustomMode) {
+      generateCustomFonts();
     }
   };
 
@@ -72,11 +114,11 @@ export function InputPanel({ text, onTextChange, onPresetSelect, selectedPreset 
 
       <div>
         <Label className="text-sm font-semibold text-foreground mb-3 block">
-          Quick Presets
+          Font Pool
         </Label>
         <Select
-          value={selectedPreset || undefined}
-          onValueChange={(value) => onPresetSelect(value as PresetKey)}
+          value={isCustomMode ? 'custom' : (selectedPreset || undefined)}
+          onValueChange={handlePresetChange}
         >
           <SelectTrigger className="w-full bg-secondary/30 border-border">
             <SelectValue placeholder="Select a preset" />
@@ -92,8 +134,47 @@ export function InputPanel({ text, onTextChange, onPresetSelect, selectedPreset 
                 </div>
               </SelectItem>
             ))}
+            <SelectItem value="custom" className="cursor-pointer">
+              <div className="flex flex-col items-start">
+                <span className="font-medium">Custom Random</span>
+                <span className="text-xs text-muted-foreground">
+                  Pick your own font count
+                </span>
+              </div>
+            </SelectItem>
           </SelectContent>
         </Select>
+
+        {isCustomMode && (
+          <div className="mt-3 p-3 bg-secondary/20 rounded-lg border border-border space-y-3">
+            <div className="flex items-center gap-2">
+              <Label className="text-xs text-muted-foreground whitespace-nowrap">
+                Number of fonts:
+              </Label>
+              <Input
+                type="number"
+                min={MIN_CUSTOM_FONTS}
+                max={MAX_CUSTOM_FONTS}
+                value={customFontCount}
+                onChange={(e) => handleCustomCountChange(e.target.value)}
+                onBlur={handleCustomCountBlur}
+                className="h-8 w-20 text-center bg-background/50"
+              />
+              <span className="text-xs text-muted-foreground">
+                (max {MAX_CUSTOM_FONTS})
+              </span>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={generateCustomFonts}
+              className="w-full"
+            >
+              <Shuffle className="w-4 h-4 mr-2" />
+              Shuffle Fonts
+            </Button>
+          </div>
+        )}
       </div>
 
     </div>
