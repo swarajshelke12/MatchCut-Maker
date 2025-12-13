@@ -15,9 +15,8 @@ export interface CreditData {
 
 export interface CreditCost {
   base: number;
-  fonts: number;
   duration: number;
-  frames: number;
+  speed: number;
   total: number;
 }
 
@@ -26,8 +25,8 @@ export const CREDIT_CONFIG = {
   BONUS_CREDITS: 500,
   MONTHLY_CREDITS: 500,
   DAILY_LIMIT: 100,
-  MIN_RENDER_COST: 20,
-  MAX_RENDER_COST: 40,
+  MIN_RENDER_COST: 5,
+  MAX_RENDER_COST: 100,
   PAYMENT_LINKS: {
     PACK_200: 'https://buy.stripe.com/test_your_200_credits_link', // Replace with actual Stripe Payment Link
     PACK_500: 'https://buy.stripe.com/test_your_500_credits_link', // Replace with actual Stripe Payment Link
@@ -162,24 +161,29 @@ function checkAndResetCredits(data: CreditData): CreditData {
   return updated;
 }
 
-// Calculate credit cost for a render
+// Calculate credit cost for a render based on timing and speed
 export function calculateRenderCost(
-  numFonts: number,
+  _numFonts: number,
   durationSeconds: number,
   totalFrames: number
 ): CreditCost {
-  const base = 10;
-  const fonts = numFonts * 0.5;
-  const duration = durationSeconds * 1;
-  const frames = totalFrames * 0.02;
+  // Base cost: 5 credits minimum
+  const base = 5;
+  
+  // Duration cost: 2 credits per second of video
+  const duration = Math.round(durationSeconds * 2);
+  
+  // Speed cost: based on total frames (higher FPS = more frames = more processing)
+  // ~0.1 credits per frame
+  const speed = Math.round(totalFrames * 0.1);
 
-  const rawTotal = base + fonts + duration + frames;
+  const rawTotal = base + duration + speed;
   const total = Math.max(
     CREDIT_CONFIG.MIN_RENDER_COST,
     Math.min(CREDIT_CONFIG.MAX_RENDER_COST, Math.round(rawTotal))
   );
 
-  return { base, fonts, duration, frames, total };
+  return { base, duration, speed, total };
 }
 
 // Get total available credits (spendable pools only - not daily limit)
