@@ -25,7 +25,7 @@ export const CREDIT_CONFIG = {
   BONUS_CREDITS: 500,
   MONTHLY_CREDITS: 500,
   DAILY_LIMIT: 100,
-  MIN_RENDER_COST: 5,
+  MIN_RENDER_COST: 17,
   MAX_RENDER_COST: 100,
   PAYMENT_LINKS: {
     PACK_200: 'https://buy.stripe.com/test_your_200_credits_link', // Replace with actual Stripe Payment Link
