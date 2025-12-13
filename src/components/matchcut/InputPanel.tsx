@@ -1,7 +1,7 @@
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { PRESETS, PresetKey } from '@/lib/fonts';
-import { Type, Upload, X } from 'lucide-react';
+import { Type, X } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -96,17 +96,6 @@ export function InputPanel({ text, onTextChange, onPresetSelect, selectedPreset 
         </Select>
       </div>
 
-      <div className="pt-4 border-t border-border">
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full bg-secondary/20 border-border hover:bg-secondary hover:border-primary/50 rounded-lg"
-          disabled
-        >
-          <Upload className="w-4 h-4 mr-2" />
-          Upload .txt (coming soon)
-        </Button>
-      </div>
     </div>
   );
 }

@@ -38,8 +38,10 @@ export function RenderCostBadge({ cost, canAfford }: RenderCostBadgeProps) {
               <span className="text-right font-mono">{cost.base}</span>
               <span>Duration:</span>
               <span className="text-right font-mono">{cost.duration}</span>
-              <span>Speed (frames):</span>
-              <span className="text-right font-mono">{cost.speed}</span>
+              <span>FPS:</span>
+              <span className="text-right font-mono">{cost.fps}</span>
+              <span>Fonts:</span>
+              <span className="text-right font-mono">{cost.fonts}</span>
             </div>
             <div className="pt-1.5 border-t border-border flex justify-between font-medium text-foreground">
               <span>Total:</span>
