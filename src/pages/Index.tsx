@@ -12,6 +12,7 @@ import { PRESETS, PresetKey, DEFAULT_IMPACT_FONTS } from '@/lib/fonts';
 import { ANIMATION_STYLES, getAnimationStyle } from '@/lib/animationStyles';
 import { MatchCutSettings, generateSequence, exportAsVideo, exportSequenceAsPngs, MatchCutSequence, getAspectRatio } from '@/lib/matchcut';
 import { useCredits } from '@/hooks/use-credits';
+import { useCooldown } from '@/hooks/use-cooldown';
 import { toast } from 'sonner';
 
 const DEFAULT_SETTINGS: MatchCutSettings = {
@@ -41,6 +42,9 @@ const Index = () => {
 
   // Credit system hook
   const credits = useCredits();
+  
+  // Cooldown hook
+  const cooldown = useCooldown();
   
   // Onboarding hook
   const { shouldShow: shouldShowOnboarding } = useOnboarding();
@@ -139,6 +143,12 @@ const Index = () => {
   const handleExport = useCallback(async (format: ExportFormat) => {
     if (!sequence || !exportCanvasRef.current) return;
 
+    // Check cooldown first
+    if (cooldown.isOnCooldown) {
+      toast.error(`Please wait ${cooldown.formatCooldown} before rendering again.`);
+      return;
+    }
+
     // Check credits before starting
     if (!affordCheck.canRender) {
       setInsufficientReason(affordCheck.reason || 'Insufficient credits');
@@ -165,8 +175,9 @@ const Index = () => {
         saveAs(videoBlob, `${sanitizedText}_matchcut.webm`);
         setLastExport({ filename: sanitizedText, frames: sequence.totalFrames, format: 'WebM' });
         
-        // Deduct credits after successful export
+        // Deduct credits and start cooldown after successful export
         credits.deductRenderCredits(costToDeduct);
+        cooldown.startCooldown();
         toast.success(`Video exported! (${costToDeduct} credits used)`);
       } else {
         const { pngs, json } = await exportSequenceAsPngs(
@@ -225,8 +236,9 @@ const Index = () => {
 
         setLastExport({ filename: sanitizedText, frames: pngs.length, format: 'PNG' });
         
-        // Deduct credits after successful export
+        // Deduct credits and start cooldown after successful export
         credits.deductRenderCredits(costToDeduct);
+        cooldown.startCooldown();
         toast.success(`Exported ${pngs.length} frames! (${costToDeduct} credits used)`);
       }
     } catch (error) {
@@ -297,6 +309,8 @@ const Index = () => {
             onAnimationStyleChange={handleAnimationStyleChange}
             totalFrames={sequence?.totalFrames || Math.ceil(settings.fps * settings.duration)}
             fps={settings.fps}
+            isOnCooldown={cooldown.isOnCooldown}
+            cooldownRemaining={cooldown.formatCooldown}
           />
         </aside>
       </main>

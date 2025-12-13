@@ -27,6 +27,7 @@ export const CREDIT_CONFIG = {
   DAILY_LIMIT: 100,
   MIN_RENDER_COST: 17,
   MAX_RENDER_COST: 100,
+  RENDER_COOLDOWN_SECONDS: 30, // 30 second cooldown between renders
   PAYMENT_LINKS: {
     PACK_200: 'https://buy.stripe.com/test_your_200_credits_link', // Replace with actual Stripe Payment Link
     PACK_500: 'https://buy.stripe.com/test_your_500_credits_link', // Replace with actual Stripe Payment Link
@@ -36,6 +37,48 @@ export const CREDIT_CONFIG = {
     PACK_500: { credits: 500, price: 199, currency: '₹', label: '500 Credits' },
   },
 } as const;
+
+const COOLDOWN_STORAGE_KEY = 'matchcut_last_render';
+
+// Get remaining cooldown time in seconds (0 if ready)
+export function getRemainingCooldown(): number {
+  try {
+    const lastRender = localStorage.getItem(COOLDOWN_STORAGE_KEY);
+    if (!lastRender) return 0;
+    
+    const lastRenderTime = parseInt(lastRender, 10);
+    const now = Date.now();
+    const elapsed = Math.floor((now - lastRenderTime) / 1000);
+    const remaining = CREDIT_CONFIG.RENDER_COOLDOWN_SECONDS - elapsed;
+    
+    return Math.max(0, remaining);
+  } catch {
+    return 0;
+  }
+}
+
+// Check if cooldown is active
+export function isCooldownActive(): boolean {
+  return getRemainingCooldown() > 0;
+}
+
+// Set cooldown after a render
+export function setRenderCooldown(): void {
+  try {
+    localStorage.setItem(COOLDOWN_STORAGE_KEY, Date.now().toString());
+  } catch (e) {
+    console.error('Failed to set cooldown:', e);
+  }
+}
+
+// Clear cooldown (for testing/admin)
+export function clearRenderCooldown(): void {
+  try {
+    localStorage.removeItem(COOLDOWN_STORAGE_KEY);
+  } catch (e) {
+    console.error('Failed to clear cooldown:', e);
+  }
+}
 
 const STORAGE_KEY = 'matchcut_credits';
 
