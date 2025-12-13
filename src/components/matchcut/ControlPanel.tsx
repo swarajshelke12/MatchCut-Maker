@@ -9,7 +9,7 @@ import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CURATED_FONTS } from '@/lib/fonts';
 import { ANIMATION_STYLES, getAnimationStyle, AnimationStyleId } from '@/lib/animationStyles';
-import { Shuffle, Settings2, Palette, Video, Image, Wand2, Clock, Monitor } from 'lucide-react';
+import { Shuffle, Settings2, Palette, Video, Image, Wand2, Clock, Monitor, Timer } from 'lucide-react';
 import { MatchCutSettings, ASPECT_RATIOS, AspectRatioId } from '@/lib/matchcut';
 import { CreditCost, estimateRenderTime } from '@/lib/credits';
 import { CreditMeter } from '@/components/credits/CreditMeter';
@@ -42,6 +42,9 @@ interface ControlPanelProps {
   // Preview
   totalFrames: number;
   fps: number;
+  // Cooldown
+  isOnCooldown: boolean;
+  cooldownRemaining: string;
 }
 
 export function ControlPanel({
@@ -65,6 +68,8 @@ export function ControlPanel({
   onAnimationStyleChange,
   totalFrames,
   fps,
+  isOnCooldown,
+  cooldownRemaining,
 }: ControlPanelProps) {
   const [showAllFonts, setShowAllFonts] = useState(false);
 
@@ -92,7 +97,7 @@ export function ControlPanel({
   };
 
   const displayedFonts = showAllFonts ? CURATED_FONTS : CURATED_FONTS.slice(0, 10);
-  const canExport = settings.text.trim() && canAfford;
+  const canExport = settings.text.trim() && canAfford && !isOnCooldown;
   const estimatedTime = estimateRenderTime(totalFrames, fps);
 
   return (
@@ -398,6 +403,16 @@ export function ControlPanel({
               <Clock className="w-3.5 h-3.5" />
               <span>{estimatedTime}</span>
             </div>
+          </div>
+        )}
+
+        {/* Cooldown Timer */}
+        {isOnCooldown && (
+          <div className="flex items-center justify-center gap-2 py-2 px-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+            <Timer className="w-4 h-4 text-amber-500 animate-pulse" />
+            <span className="text-sm font-medium text-amber-500">
+              Cooldown: {cooldownRemaining}
+            </span>
           </div>
         )}
 
