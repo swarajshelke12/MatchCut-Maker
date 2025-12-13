@@ -68,9 +68,8 @@ const Index = () => {
   // Calculate render cost based on current settings
   const renderCost = useMemo(() => {
     const numFonts = settings.selectedFonts.length || 1;
-    const totalFrames = sequence?.totalFrames || Math.ceil(settings.fps * settings.duration);
-    return credits.getRenderCost(numFonts, settings.duration, totalFrames);
-  }, [settings, sequence, credits]);
+    return credits.getRenderCost(numFonts, settings.duration, settings.fps);
+  }, [settings, credits]);
 
   // Check if user can afford the render
   const affordCheck = useMemo(() => {

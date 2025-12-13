@@ -46,9 +46,9 @@ export function useCredits() {
   const getRenderCost = useCallback((
     numFonts: number,
     durationSeconds: number,
-    totalFrames: number
+    fps: number
   ): CreditCost => {
-    return calculateRenderCost(numFonts, durationSeconds, totalFrames);
+    return calculateRenderCost(numFonts, durationSeconds, fps);
   }, []);
 
   // Check if can render

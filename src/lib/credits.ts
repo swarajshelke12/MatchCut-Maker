@@ -16,7 +16,8 @@ export interface CreditData {
 export interface CreditCost {
   base: number;
   duration: number;
-  speed: number;
+  fps: number;
+  fonts: number;
   total: number;
 }
 
@@ -204,29 +205,32 @@ function checkAndResetCredits(data: CreditData): CreditData {
   return updated;
 }
 
-// Calculate credit cost for a render based on timing and speed
+// Calculate credit cost for a render based on usage
 export function calculateRenderCost(
-  _numFonts: number,
+  numFonts: number,
   durationSeconds: number,
-  totalFrames: number
+  fps: number
 ): CreditCost {
-  // Base cost: 5 credits minimum
+  // Base cost: 5 credits
   const base = 5;
   
-  // Duration cost: 2 credits per second of video
-  const duration = Math.round(durationSeconds * 2);
+  // Duration cost: 3 credits per second of video
+  const duration = Math.round(durationSeconds * 3);
   
-  // Speed cost: based on total frames (higher FPS = more frames = more processing)
-  // ~0.1 credits per frame
-  const speed = Math.round(totalFrames * 0.1);
+  // FPS cost: higher FPS = more processing
+  // 0.2 credits per fps
+  const fpsCost = Math.round(fps * 0.2);
+  
+  // Font cost: 0.5 credits per font used
+  const fonts = Math.round(numFonts * 0.5);
 
-  const rawTotal = base + duration + speed;
+  const rawTotal = base + duration + fpsCost + fonts;
   const total = Math.max(
     CREDIT_CONFIG.MIN_RENDER_COST,
     Math.min(CREDIT_CONFIG.MAX_RENDER_COST, Math.round(rawTotal))
   );
 
-  return { base, duration, speed, total };
+  return { base, duration, fps: fpsCost, fonts, total };
 }
 
 // Get total available credits (spendable pools only - not daily limit)
