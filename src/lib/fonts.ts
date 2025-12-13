@@ -147,6 +147,35 @@ export const CURATED_FONTS: FontOption[] = [
   { name: 'Ceviche One', family: "'Ceviche One', sans-serif", category: 'sans' },
   { name: 'Caesar Dressing', family: "'Caesar Dressing', sans-serif", category: 'sans' },
   { name: 'Shojumaru', family: "'Shojumaru', sans-serif", category: 'sans' },
+  
+  // MONO - Technical and code-like
+  { name: 'Fira Code', family: "'Fira Code', monospace", category: 'mono' },
+  { name: 'JetBrains Mono', family: "'JetBrains Mono', monospace", category: 'mono' },
+  { name: 'Source Code Pro', family: "'Source Code Pro', monospace", category: 'mono' },
+  { name: 'Space Mono', family: "'Space Mono', monospace", category: 'mono' },
+  { name: 'Ubuntu Mono', family: "'Ubuntu Mono', monospace", category: 'mono' },
+  
+  // Additional Display fonts
+  { name: 'Rubik Distressed', family: "'Rubik Distressed', sans-serif", category: 'display' },
+  { name: 'Rubik Burned', family: "'Rubik Burned', sans-serif", category: 'display' },
+  { name: 'Rubik Maze', family: "'Rubik Maze', sans-serif", category: 'display' },
+  { name: 'Rubik Doodle Shadow', family: "'Rubik Doodle Shadow', sans-serif", category: 'display' },
+  { name: 'Rubik Iso', family: "'Rubik Iso', sans-serif", category: 'display' },
+  { name: 'Rubik Lines', family: "'Rubik Lines', sans-serif", category: 'display' },
+  { name: 'Rubik Scribble', family: "'Rubik Scribble', sans-serif", category: 'display' },
+  { name: 'Rubik Storm', family: "'Rubik Storm', sans-serif", category: 'display' },
+  { name: 'Rubik Broken Fax', family: "'Rubik Broken Fax', sans-serif", category: 'display' },
+  { name: 'Rubik Dirt', family: "'Rubik Dirt', sans-serif", category: 'display' },
+  { name: 'Rubik Pixels', family: "'Rubik Pixels', sans-serif", category: 'retro' },
+  
+  // More decorative
+  { name: 'Rye', family: "'Rye', serif", category: 'decorative' },
+  { name: 'Bungee Spice', family: "'Bungee Spice', sans-serif", category: 'decorative' },
+  { name: 'Foldit', family: "'Foldit', sans-serif", category: 'decorative' },
+  { name: 'Climate Crisis', family: "'Climate Crisis', sans-serif", category: 'decorative' },
+  { name: 'Blaka', family: "'Blaka', sans-serif", category: 'decorative' },
+  { name: 'Blaka Hollow', family: "'Blaka Hollow', sans-serif", category: 'decorative' },
+  { name: 'Blaka Ink', family: "'Blaka Ink', sans-serif", category: 'decorative' },
 ];
 
 // Default high-impact fonts for best results
