@@ -80,8 +80,12 @@ export function ControlPanel({
   };
 
   const handleClearAll = () => {
-    onSettingsChange({ selectedFonts: [] });
+    // Set to a special marker that means "none selected"
+    onSettingsChange({ selectedFonts: ['__NONE__'] });
   };
+  
+  // Check if fonts are effectively cleared (none selected)
+  const isNoneSelected = settings.selectedFonts.length === 1 && settings.selectedFonts[0] === '__NONE__';
 
   const randomizeSeed = () => {
     onSettingsChange({ seed: Math.floor(Math.random() * 999999) });
@@ -185,17 +189,24 @@ export function ControlPanel({
         </div>
         <ScrollArea className="h-[100px] rounded-lg border border-border bg-secondary/20 p-3">
           <div className="space-y-2">
+            {isNoneSelected ? (
+              <p className="text-sm text-muted-foreground text-center py-2">No fonts selected. Click "All" or select fonts below.</p>
+            ) : null}
             {displayedFonts.map((font) => (
               <div key={font.name} className="flex items-center gap-2">
                 <Checkbox
                   id={font.name}
                   checked={
-                    settings.selectedFonts.length === 0 ||
-                    settings.selectedFonts.includes(font.name)
+                    !isNoneSelected && (settings.selectedFonts.length === 0 || settings.selectedFonts.includes(font.name))
                   }
-                  onCheckedChange={(checked) =>
-                    handleFontToggle(font.name, !!checked)
-                  }
+                  onCheckedChange={(checked) => {
+                    // If none was selected and user checks a font, start fresh
+                    if (isNoneSelected && checked) {
+                      onSettingsChange({ selectedFonts: [font.name] });
+                    } else {
+                      handleFontToggle(font.name, !!checked);
+                    }
+                  }}
                   className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                 />
                 <label
