@@ -125,13 +125,46 @@ export function PreviewCanvas({ sequence, onRegenerate }: PreviewCanvasProps) {
           className={cn("max-w-full max-h-full object-contain", aspectClass)}
         />
         
+        {/* Preview-only watermark overlay */}
+        <div 
+          className="absolute inset-0 pointer-events-none overflow-hidden select-none"
+          style={{
+            background: `repeating-linear-gradient(
+              -45deg,
+              transparent,
+              transparent 80px,
+              rgba(128, 128, 128, 0.03) 80px,
+              rgba(128, 128, 128, 0.03) 81px
+            )`
+          }}
+        >
+          <div 
+            className="absolute inset-0 flex items-center justify-center"
+            style={{
+              transform: 'rotate(-30deg) scale(1.5)',
+              transformOrigin: 'center center',
+            }}
+          >
+            <div className="grid gap-16" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
+              {Array.from({ length: 25 }).map((_, i) => (
+                <span 
+                  key={i} 
+                  className="text-foreground/[0.08] text-sm font-semibold whitespace-nowrap tracking-wider"
+                >
+                  MatchCut Maker
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+        
         {/* Font indicator */}
-        <div className="absolute bottom-3 left-3 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-mono text-foreground shadow-md">
+        <div className="absolute bottom-3 left-3 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-mono text-foreground shadow-md z-10">
           {sequence.frames[currentFrame]?.fontName}
         </div>
 
         {/* Frame counter */}
-        <div className="absolute bottom-3 right-3 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-mono text-muted-foreground shadow-md">
+        <div className="absolute bottom-3 right-3 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-mono text-muted-foreground shadow-md z-10">
           {currentFrame + 1} / {sequence.totalFrames}
         </div>
       </div>
