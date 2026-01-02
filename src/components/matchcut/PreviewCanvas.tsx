@@ -125,31 +125,25 @@ export function PreviewCanvas({ sequence, onRegenerate }: PreviewCanvasProps) {
           className={cn("max-w-full max-h-full object-contain", aspectClass)}
         />
         
-        {/* Preview-only watermark overlay */}
+        {/* Preview-only watermark overlay with animation */}
         <div 
           className="absolute inset-0 pointer-events-none overflow-hidden select-none"
-          style={{
-            background: `repeating-linear-gradient(
-              -45deg,
-              transparent,
-              transparent 80px,
-              rgba(128, 128, 128, 0.03) 80px,
-              rgba(128, 128, 128, 0.03) 81px
-            )`
-          }}
         >
           <div 
-            className="absolute inset-0 flex items-center justify-center"
+            className="absolute inset-0 flex items-center justify-center animate-watermark-drift"
             style={{
-              transform: 'rotate(-30deg) scale(1.5)',
+              transform: 'rotate(-30deg) scale(2)',
               transformOrigin: 'center center',
             }}
           >
-            <div className="grid gap-16" style={{ gridTemplateColumns: 'repeat(5, 1fr)' }}>
-              {Array.from({ length: 25 }).map((_, i) => (
+            <div className="grid gap-12" style={{ gridTemplateColumns: 'repeat(7, 1fr)' }}>
+              {Array.from({ length: 49 }).map((_, i) => (
                 <span 
                   key={i} 
-                  className="text-foreground/[0.08] text-sm font-semibold whitespace-nowrap tracking-wider"
+                  className="text-foreground/[0.06] text-xs font-semibold whitespace-nowrap tracking-widest animate-watermark-pulse"
+                  style={{
+                    animationDelay: `${(i % 7) * 0.3}s`,
+                  }}
                 >
                   MatchCut Maker
                 </span>

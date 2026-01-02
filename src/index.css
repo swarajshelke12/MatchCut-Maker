@@ -137,3 +137,36 @@
     }
   }
 }
+
+/* Watermark animations */
+@keyframes watermark-drift {
+  0%, 100% {
+    transform: rotate(-30deg) scale(2) translate(0, 0);
+  }
+  25% {
+    transform: rotate(-30deg) scale(2) translate(8px, 4px);
+  }
+  50% {
+    transform: rotate(-30deg) scale(2) translate(-4px, 8px);
+  }
+  75% {
+    transform: rotate(-30deg) scale(2) translate(-8px, -4px);
+  }
+}
+
+@keyframes watermark-pulse {
+  0%, 100% {
+    opacity: 0.06;
+  }
+  50% {
+    opacity: 0.1;
+  }
+}
+
+.animate-watermark-drift {
+  animation: watermark-drift 20s ease-in-out infinite;
+}
+
+.animate-watermark-pulse {
+  animation: watermark-pulse 4s ease-in-out infinite;
+}
