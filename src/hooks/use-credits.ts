@@ -92,11 +92,9 @@ export function useCredits() {
     setCreditData(updated);
   }, [creditData]);
 
-  // Open payment link
-  const openPaymentLink = useCallback((pack: 'PACK_200' | 'PACK_500'): void => {
-    const url = CREDIT_CONFIG.PAYMENT_LINKS[pack];
-    window.open(url, '_blank');
-  }, []);
+  // Check if credits are running low (below 20%)
+  const isBonusLow = bonusCredits > 0 && bonusCredits < CREDIT_CONFIG.BONUS_CREDITS * CREDIT_CONFIG.LOW_CREDIT_THRESHOLD;
+  const isMonthlyLow = monthlyCredits < CREDIT_CONFIG.MONTHLY_CREDITS * CREDIT_CONFIG.LOW_CREDIT_THRESHOLD;
 
   return {
     isLoading,
@@ -112,13 +110,14 @@ export function useCredits() {
     bonusColor,
     monthlyColor,
     dailyColor,
+    isBonusLow,
+    isMonthlyLow,
     getRenderCost,
     checkCanRender,
     deductRenderCredits,
     refundCredits,
     purchaseCredits,
     completeOnboarding,
-    openPaymentLink,
     config: CREDIT_CONFIG,
   };
 }

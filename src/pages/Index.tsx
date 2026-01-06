@@ -60,6 +60,24 @@ const Index = () => {
     }
   }, [credits.isNewUser, credits.isLoading, shouldShowOnboarding]);
 
+  // Show low credit warning
+  useEffect(() => {
+    if (credits.isLoading) return;
+    
+    if (credits.isBonusLow) {
+      toast.warning('Bonus credits running low! Less than 20% remaining.', {
+        duration: 4000,
+        id: 'low-bonus-credits',
+      });
+    }
+    if (credits.isMonthlyLow) {
+      toast.warning('Monthly credits running low! Less than 20% remaining.', {
+        duration: 4000,
+        id: 'low-monthly-credits',
+      });
+    }
+  }, [credits.isLoading, credits.isBonusLow, credits.isMonthlyLow]);
+
   const sequence: MatchCutSequence | null = useMemo(() => {
     if (!settings.text.trim()) return null;
     return generateSequence(settings);
@@ -129,11 +147,6 @@ const Index = () => {
       backgroundColor: style.backgroundColor,
     }));
   }, []);
-
-  const handlePurchaseCredits = useCallback((pack: 'PACK_200' | 'PACK_500') => {
-    credits.openPaymentLink(pack);
-    toast.info('Opening payment page... Credits will be added after purchase.');
-  }, [credits]);
 
   const handleOnboardingComplete = useCallback(() => {
     setShowOnboarding(false);
@@ -313,7 +326,7 @@ const Index = () => {
             creditResetDate={credits.creditData?.creditResetDate}
             renderCost={renderCost}
             canAfford={affordCheck.canRender}
-            onPurchaseCredits={handlePurchaseCredits}
+            
             selectedAnimationStyle={selectedAnimationStyle}
             onAnimationStyleChange={handleAnimationStyleChange}
             totalFrames={sequence?.totalFrames || Math.ceil(settings.fps * settings.duration)}
@@ -345,10 +358,6 @@ const Index = () => {
         open={showInsufficientDialog}
         onOpenChange={setShowInsufficientDialog}
         reason={insufficientReason}
-        onBuyCredits={() => {
-          setShowInsufficientDialog(false);
-          handlePurchaseCredits('PACK_500');
-        }}
       />
     </div>
   );

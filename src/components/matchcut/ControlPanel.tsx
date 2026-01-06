@@ -35,7 +35,6 @@ interface ControlPanelProps {
   creditResetDate?: string;
   renderCost: CreditCost;
   canAfford: boolean;
-  onPurchaseCredits: (pack: 'PACK_200' | 'PACK_500') => void;
   // Animation style
   selectedAnimationStyle: string | null;
   onAnimationStyleChange: (styleId: string) => void;
@@ -63,7 +62,6 @@ export function ControlPanel({
   creditResetDate,
   renderCost,
   canAfford,
-  onPurchaseCredits,
   selectedAnimationStyle,
   onAnimationStyleChange,
   totalFrames,
@@ -113,7 +111,6 @@ export function ControlPanel({
           monthlyColor={monthlyColor}
           dailyColor={dailyColor}
           creditResetDate={creditResetDate}
-          onPurchase={onPurchaseCredits}
         />
       </div>
 

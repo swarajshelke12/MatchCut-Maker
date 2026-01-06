@@ -1,7 +1,6 @@
 import { cn } from '@/lib/utils';
 import { Coins, Zap, Calendar, Gift, Sparkles } from 'lucide-react';
 import { CREDIT_CONFIG, formatResetDate } from '@/lib/credits';
-import { BuyCreditsDialog } from './BuyCreditsDialog';
 import {
   Tooltip,
   TooltipContent,
@@ -18,7 +17,6 @@ interface CreditMeterProps {
   monthlyColor: 'green' | 'yellow' | 'red';
   dailyColor: 'green' | 'yellow' | 'red';
   creditResetDate?: string;
-  onPurchase: (pack: 'PACK_200' | 'PACK_500') => void;
 }
 
 const colorClasses = {
@@ -48,7 +46,6 @@ export function CreditMeter({
   monthlyColor,
   dailyColor,
   creditResetDate,
-  onPurchase,
 }: CreditMeterProps) {
   const bonusMax = CREDIT_CONFIG.BONUS_CREDITS;
   const monthlyMax = CREDIT_CONFIG.MONTHLY_CREDITS;
@@ -159,9 +156,6 @@ export function CreditMeter({
             <span>Monthly resets {formatResetDate(creditResetDate)}</span>
           </div>
         )}
-
-        {/* Buy Credits Button */}
-        <BuyCreditsDialog onPurchase={onPurchase} />
       </div>
     </TooltipProvider>
   );
