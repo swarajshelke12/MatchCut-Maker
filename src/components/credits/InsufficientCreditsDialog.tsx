@@ -1,27 +1,24 @@
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { AlertCircle, ShoppingCart } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 
 interface InsufficientCreditsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   reason: string;
-  onBuyCredits: () => void;
 }
 
 export function InsufficientCreditsDialog({
   open,
   onOpenChange,
   reason,
-  onBuyCredits,
 }: InsufficientCreditsDialogProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -31,15 +28,16 @@ export function InsufficientCreditsDialog({
             <AlertCircle className="w-5 h-5" />
             Insufficient Credits
           </AlertDialogTitle>
-          <AlertDialogDescription>
-            {reason}
+          <AlertDialogDescription className="space-y-2">
+            <p>{reason}</p>
+            <p className="text-xs text-muted-foreground">
+              Your credits will reset monthly, or wait for daily limit reset.
+            </p>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onBuyCredits} className="gap-2">
-            <ShoppingCart className="w-4 h-4" />
-            Buy Credits
+          <AlertDialogAction onClick={() => onOpenChange(false)}>
+            OK
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

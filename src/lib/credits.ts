@@ -29,14 +29,7 @@ export const CREDIT_CONFIG = {
   MIN_RENDER_COST: 17,
   MAX_RENDER_COST: 100,
   RENDER_COOLDOWN_SECONDS: 30, // 30 second cooldown between renders
-  PAYMENT_LINKS: {
-    PACK_200: 'https://buy.stripe.com/test_your_200_credits_link', // Replace with actual Stripe Payment Link
-    PACK_500: 'https://buy.stripe.com/test_your_500_credits_link', // Replace with actual Stripe Payment Link
-  },
-  PACK_PRICES: {
-    PACK_200: { credits: 200, price: 99, currency: '₹', label: '200 Credits' },
-    PACK_500: { credits: 500, price: 199, currency: '₹', label: '500 Credits' },
-  },
+  LOW_CREDIT_THRESHOLD: 0.2, // 20% threshold for low credit warning
 } as const;
 
 const COOLDOWN_STORAGE_KEY = 'matchcut_last_render';
