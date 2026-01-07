@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils';
-import { Coins, Zap, Calendar, Gift, Sparkles } from 'lucide-react';
-import { CREDIT_CONFIG, formatResetDate } from '@/lib/credits';
+import { Coins, Zap, Calendar, Gift, Sparkles, Clock } from 'lucide-react';
+import { CREDIT_CONFIG } from '@/lib/credits';
+import { useCreditCountdown } from '@/hooks/use-credit-countdown';
 import {
   Tooltip,
   TooltipContent,
@@ -50,6 +51,8 @@ export function CreditMeter({
   const bonusMax = CREDIT_CONFIG.BONUS_CREDITS;
   const monthlyMax = CREDIT_CONFIG.MONTHLY_CREDITS;
   const dailyMax = CREDIT_CONFIG.DAILY_LIMIT;
+  
+  const { dailyCountdown, monthlyCountdown } = useCreditCountdown(creditResetDate);
 
   return (
     <TooltipProvider>
@@ -149,13 +152,25 @@ export function CreditMeter({
           </div>
         )}
 
-        {/* Reset Date */}
-        {creditResetDate && (
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Calendar className="w-3 h-3" />
-            <span>Monthly resets {formatResetDate(creditResetDate)}</span>
+        {/* Reset Countdowns */}
+        <div className="space-y-2 pt-2 border-t border-border/50">
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <Clock className="w-3 h-3" />
+              <span>Daily reset</span>
+            </div>
+            <span className="font-mono text-primary">{dailyCountdown.formatted}</span>
           </div>
-        )}
+          {creditResetDate && (
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <Calendar className="w-3 h-3" />
+                <span>Monthly reset</span>
+              </div>
+              <span className="font-mono text-primary">{monthlyCountdown.formatted}</span>
+            </div>
+          )}
+        </div>
       </div>
     </TooltipProvider>
   );
