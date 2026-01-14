@@ -9,7 +9,8 @@ import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { CURATED_FONTS } from '@/lib/fonts';
 import { ANIMATION_STYLES, getAnimationStyle, AnimationStyleId } from '@/lib/animationStyles';
-import { Shuffle, Settings2, Palette, Video, Image, Wand2, Clock, Monitor, Timer } from 'lucide-react';
+import { USE_CASES, getUseCase, isStyleRecommended, UseCaseId } from '@/lib/useCases';
+import { Shuffle, Settings2, Palette, Video, Image, Wand2, Clock, Monitor, Timer, Lightbulb, Sparkles } from 'lucide-react';
 import { MatchCutSettings, ASPECT_RATIOS, AspectRatioId } from '@/lib/matchcut';
 import { CreditCost, estimateRenderTime } from '@/lib/credits';
 import { CreditMeter } from '@/components/credits/CreditMeter';
@@ -70,6 +71,20 @@ export function ControlPanel({
   cooldownRemaining,
 }: ControlPanelProps) {
   const [showAllFonts, setShowAllFonts] = useState(false);
+  const [selectedUseCase, setSelectedUseCase] = useState<UseCaseId | null>(null);
+
+  const handleUseCaseChange = (useCaseId: string) => {
+    if (useCaseId === 'none') {
+      setSelectedUseCase(null);
+      return;
+    }
+    setSelectedUseCase(useCaseId as UseCaseId);
+    const useCase = getUseCase(useCaseId);
+    if (useCase) {
+      // Preselect the default recommended style
+      onAnimationStyleChange(useCase.defaultStyle);
+    }
+  };
 
   const handleFontToggle = (fontName: string, checked: boolean) => {
     const newFonts = checked
@@ -114,6 +129,32 @@ export function ControlPanel({
         />
       </div>
 
+      {/* Use Case Helper */}
+      <div className="space-y-2">
+        <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
+          <Lightbulb className="w-4 h-4 text-primary" />
+          What are you creating?
+        </Label>
+        <Select value={selectedUseCase || 'none'} onValueChange={handleUseCaseChange}>
+          <SelectTrigger className="w-full bg-secondary/50 border-border">
+            <SelectValue placeholder="Select content type (optional)" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">
+              <span className="text-muted-foreground">No specific type</span>
+            </SelectItem>
+            {USE_CASES.map((useCase) => (
+              <SelectItem key={useCase.id} value={useCase.id}>
+                {useCase.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="text-xs text-muted-foreground">
+          Suggestions only — you can use any style.
+        </p>
+      </div>
+
       {/* Animation Style */}
       <div className="space-y-3">
         <Label className="text-sm font-semibold text-foreground flex items-center gap-2">
@@ -125,14 +166,31 @@ export function ControlPanel({
             <SelectValue placeholder="Choose a style preset" />
           </SelectTrigger>
           <SelectContent>
-            {ANIMATION_STYLES.map((style) => (
-              <SelectItem key={style.id} value={style.id}>
-                <div className="flex flex-col">
-                  <span className="font-medium">{style.name}</span>
-                  <span className="text-xs text-muted-foreground">{style.description}</span>
-                </div>
-              </SelectItem>
-            ))}
+            {ANIMATION_STYLES.map((style) => {
+              const isRecommended = isStyleRecommended(selectedUseCase, style.id);
+              return (
+                <SelectItem 
+                  key={style.id} 
+                  value={style.id}
+                  className={cn(
+                    isRecommended && "relative bg-primary/5 border-l-2 border-l-primary"
+                  )}
+                >
+                  <div className="flex flex-col">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{style.name}</span>
+                      {isRecommended && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium bg-primary/20 text-primary rounded">
+                          <Sparkles className="w-2.5 h-2.5" />
+                          Recommended
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-xs text-muted-foreground">{style.description}</span>
+                  </div>
+                </SelectItem>
+              );
+            })}
           </SelectContent>
         </Select>
       </div>
