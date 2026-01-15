@@ -125,30 +125,58 @@ export function PreviewCanvas({ sequence, onRegenerate }: PreviewCanvasProps) {
           className={cn("max-w-full max-h-full object-contain", aspectClass)}
         />
         
-        {/* Preview-only watermark overlay with animation */}
+        {/* Preview-only watermark overlay - prominent to prevent screen recording */}
         <div 
-          className="absolute inset-0 pointer-events-none overflow-hidden select-none"
+          className="absolute inset-0 pointer-events-none overflow-hidden select-none z-20"
         >
+          {/* Main diagonal watermark pattern */}
           <div 
-            className="absolute inset-0 flex items-center justify-center animate-watermark-drift"
+            className="absolute inset-0 flex items-center justify-center"
             style={{
-              transform: 'rotate(-30deg) scale(2)',
+              transform: 'rotate(-25deg) scale(2.5)',
               transformOrigin: 'center center',
             }}
           >
-            <div className="grid gap-12" style={{ gridTemplateColumns: 'repeat(7, 1fr)' }}>
-              {Array.from({ length: 49 }).map((_, i) => (
+            <div className="grid gap-8" style={{ gridTemplateColumns: 'repeat(8, 1fr)' }}>
+              {Array.from({ length: 64 }).map((_, i) => (
                 <span 
                   key={i} 
-                  className="text-foreground/[0.06] text-xs font-semibold whitespace-nowrap tracking-widest animate-watermark-pulse"
+                  className="text-white/20 text-sm font-bold whitespace-nowrap tracking-wider drop-shadow-lg"
                   style={{
-                    animationDelay: `${(i % 7) * 0.3}s`,
+                    textShadow: '0 0 10px rgba(0,0,0,0.5)',
                   }}
                 >
                   MatchCut Maker
                 </span>
               ))}
             </div>
+          </div>
+          
+          {/* Center prominent watermark */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div 
+              className="text-white/30 text-4xl font-black tracking-widest"
+              style={{
+                textShadow: '0 2px 20px rgba(0,0,0,0.8), 0 0 40px rgba(0,0,0,0.5)',
+                transform: 'rotate(-15deg)',
+              }}
+            >
+              PREVIEW ONLY
+            </div>
+          </div>
+          
+          {/* Corner watermarks */}
+          <div className="absolute top-4 left-4 text-white/25 text-xs font-semibold tracking-wide">
+            MatchCut Maker
+          </div>
+          <div className="absolute top-4 right-4 text-white/25 text-xs font-semibold tracking-wide">
+            Export to remove watermark
+          </div>
+          <div className="absolute bottom-16 left-4 text-white/25 text-xs font-semibold tracking-wide">
+            © MatchCut Maker
+          </div>
+          <div className="absolute bottom-16 right-4 text-white/25 text-xs font-semibold tracking-wide">
+            Preview Only
           </div>
         </div>
         
