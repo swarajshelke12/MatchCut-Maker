@@ -336,24 +336,54 @@ export function ControlPanel({
           </div>
           <div>
             <Label className="text-xs text-muted-foreground mb-1.5 block">
-              Background (Auto)
+              Background
             </Label>
-            <div 
-              className="h-9 rounded-lg border border-border flex items-center justify-center gap-2"
-              style={{ 
-                backgroundColor: isColorDark(settings.foregroundColor) ? '#FFFFFF' : '#000000',
-                color: isColorDark(settings.foregroundColor) ? '#000000' : '#FFFFFF'
-              }}
-            >
-              <span className="text-xs font-medium">
-                {isColorDark(settings.foregroundColor) ? 'White' : 'Black'}
-              </span>
-            </div>
+            {settings.backgroundColor === 'auto' ? (
+              <div 
+                className="h-9 rounded-lg border border-border flex items-center justify-between px-2 cursor-pointer hover:border-primary/50 transition-colors"
+                style={{ 
+                  backgroundColor: isColorDark(settings.foregroundColor) ? '#FFFFFF' : '#000000',
+                  color: isColorDark(settings.foregroundColor) ? '#000000' : '#FFFFFF'
+                }}
+                onClick={() => onSettingsChange({ backgroundColor: isColorDark(settings.foregroundColor) ? '#FFFFFF' : '#000000' })}
+              >
+                <span className="text-xs font-medium">
+                  Auto ({isColorDark(settings.foregroundColor) ? 'White' : 'Black'})
+                </span>
+                <span className="text-[10px] opacity-70">Click to customize</span>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Input
+                  type="color"
+                  value={settings.backgroundColor}
+                  onChange={(e) =>
+                    onSettingsChange({ backgroundColor: e.target.value })
+                  }
+                  className="w-10 h-9 p-0.5 bg-secondary border-border cursor-pointer rounded-lg"
+                />
+                <Input
+                  type="text"
+                  value={settings.backgroundColor}
+                  onChange={(e) =>
+                    onSettingsChange({ backgroundColor: e.target.value })
+                  }
+                  className="flex-1 h-9 bg-secondary/50 border-border font-mono text-xs"
+                />
+              </div>
+            )}
           </div>
         </div>
-        <p className="text-xs text-muted-foreground">
-          Background auto-adjusts: white for dark text, black for light text.
-        </p>
+        {settings.backgroundColor !== 'auto' && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onSettingsChange({ backgroundColor: 'auto' })}
+            className="w-full h-7 text-xs text-muted-foreground hover:text-primary"
+          >
+            Reset to auto background
+          </Button>
+        )}
       </div>
 
       {/* Seed */}
