@@ -22,7 +22,7 @@ const DEFAULT_SETTINGS: MatchCutSettings = {
   framesPerCard: 1,
   selectedFonts: DEFAULT_IMPACT_FONTS,
   foregroundColor: '#ffffff',
-  backgroundColor: '#000000',
+  backgroundColor: 'auto',
   fontSize: 180,
   seed: 42,
   aspectRatio: '16:9',

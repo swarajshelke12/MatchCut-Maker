@@ -27,7 +27,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     fps: 30,
     duration: 2.5,
     foregroundColor: '#ffffff',
-    backgroundColor: '#000000',
+    backgroundColor: 'auto',
   },
   {
     id: 'glitch-flash',
@@ -38,7 +38,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     fps: 60,
     duration: 1.5,
     foregroundColor: '#00ff88',
-    backgroundColor: '#0a0a0a',
+    backgroundColor: 'auto',
   },
   {
     id: 'kinetic-pop',
@@ -49,7 +49,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     fps: 60,
     duration: 2,
     foregroundColor: '#ffff00',
-    backgroundColor: '#1a0a2e',
+    backgroundColor: 'auto',
   },
   {
     id: 'handwritten-bounce',
@@ -60,7 +60,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     fps: 30,
     duration: 2.5,
     foregroundColor: '#ffffff',
-    backgroundColor: '#2d3436',
+    backgroundColor: 'auto',
   },
   {
     id: 'bold-punch',
@@ -71,7 +71,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     fps: 60,
     duration: 2,
     foregroundColor: '#ffffff',
-    backgroundColor: '#000000',
+    backgroundColor: 'auto',
   },
   {
     id: 'horror-chaos',
@@ -82,7 +82,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     fps: 24,
     duration: 3,
     foregroundColor: '#ff0000',
-    backgroundColor: '#0d0d0d',
+    backgroundColor: 'auto',
   },
   {
     id: 'retro-arcade',
@@ -93,7 +93,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     fps: 30,
     duration: 2,
     foregroundColor: '#00ffff',
-    backgroundColor: '#1a0033',
+    backgroundColor: 'auto',
   },
   {
     id: 'street-graffiti',
@@ -104,7 +104,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     fps: 30,
     duration: 2,
     foregroundColor: '#ff6b35',
-    backgroundColor: '#1a1a2e',
+    backgroundColor: 'auto',
   },
   // NEW STYLES
   {
@@ -116,7 +116,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     fps: 60,
     duration: 1.8,
     foregroundColor: '#ff00ff',
-    backgroundColor: '#0a0a1a',
+    backgroundColor: 'auto',
   },
   {
     id: 'vintage-cinema',
@@ -127,7 +127,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     fps: 24,
     duration: 3.5,
     foregroundColor: '#f5deb3',
-    backgroundColor: '#1a1a1a',
+    backgroundColor: 'auto',
   },
   {
     id: 'comic-burst',
@@ -138,7 +138,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     fps: 48,
     duration: 1.5,
     foregroundColor: '#ffeb3b',
-    backgroundColor: '#e91e63',
+    backgroundColor: 'auto',
   },
   {
     id: 'elegant-luxury',
@@ -149,7 +149,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     fps: 24,
     duration: 4,
     foregroundColor: '#d4af37',
-    backgroundColor: '#0d0d0d',
+    backgroundColor: 'auto',
   },
   {
     id: 'psychedelic-wave',
@@ -160,7 +160,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     fps: 60,
     duration: 2,
     foregroundColor: '#ff6ec7',
-    backgroundColor: '#2d0a4e',
+    backgroundColor: 'auto',
   },
   {
     id: 'military-stencil',
@@ -171,7 +171,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     fps: 30,
     duration: 2.5,
     foregroundColor: '#8fbc8f',
-    backgroundColor: '#1a2f1a',
+    backgroundColor: 'auto',
   },
   {
     id: 'japanese-pop',
@@ -182,7 +182,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     fps: 48,
     duration: 1.8,
     foregroundColor: '#ff4081',
-    backgroundColor: '#121212',
+    backgroundColor: 'auto',
   },
   {
     id: 'typewriter-flash',
@@ -193,7 +193,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     fps: 60,
     duration: 1.5,
     foregroundColor: '#00ff00',
-    backgroundColor: '#0a0a0a',
+    backgroundColor: 'auto',
   },
   {
     id: 'sunset-vibes',
@@ -204,7 +204,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     fps: 30,
     duration: 3,
     foregroundColor: '#ff7e5f',
-    backgroundColor: '#1a1a2e',
+    backgroundColor: 'auto',
   },
   {
     id: 'chaos-maximum',
@@ -215,7 +215,7 @@ export const ANIMATION_STYLES: AnimationStyle[] = [
     fps: 60,
     duration: 1.5,
     foregroundColor: '#ffffff',
-    backgroundColor: '#000000',
+    backgroundColor: 'auto',
   },
 ];
 
