@@ -89,6 +89,24 @@ export function generateSequence(settings: MatchCutSettings): MatchCutSequence {
   };
 }
 
+// Helper to determine if a color is dark (luminance < 0.5)
+export function isColorDark(hex: string): boolean {
+  // Remove # if present
+  const color = hex.replace('#', '');
+  const r = parseInt(color.substring(0, 2), 16) / 255;
+  const g = parseInt(color.substring(2, 4), 16) / 255;
+  const b = parseInt(color.substring(4, 6), 16) / 255;
+  
+  // Calculate relative luminance using sRGB formula
+  const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
+  return luminance < 0.5;
+}
+
+// Get automatic background color based on text color
+export function getAutoBackgroundColor(fgColor: string): string {
+  return isColorDark(fgColor) ? '#FFFFFF' : '#000000';
+}
+
 export function renderFrameToCanvas(
   canvas: HTMLCanvasElement,
   text: string,
@@ -100,11 +118,16 @@ export function renderFrameToCanvas(
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
   
+  // Auto-determine background: white for dark text, black for light text
+  const effectiveBgColor = bgColor === 'auto' 
+    ? getAutoBackgroundColor(fgColor) 
+    : bgColor;
+  
   // Clear with background (or transparent if no bg)
-  if (bgColor === 'transparent') {
+  if (effectiveBgColor === 'transparent') {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
   } else {
-    ctx.fillStyle = bgColor;
+    ctx.fillStyle = effectiveBgColor;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
   

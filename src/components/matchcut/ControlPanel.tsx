@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CURATED_FONTS } from '@/lib/fonts';
 import { ANIMATION_STYLES, getAnimationStyle, AnimationStyleId } from '@/lib/animationStyles';
 import { Shuffle, Settings2, Palette, Video, Image, Wand2, Clock, Monitor, Timer } from 'lucide-react';
-import { MatchCutSettings, ASPECT_RATIOS, AspectRatioId } from '@/lib/matchcut';
+import { MatchCutSettings, ASPECT_RATIOS, AspectRatioId, isColorDark } from '@/lib/matchcut';
 import { CreditCost, estimateRenderTime } from '@/lib/credits';
 import { CreditMeter } from '@/components/credits/CreditMeter';
 import { RenderCostBadge } from '@/components/credits/RenderCostBadge';
@@ -313,7 +313,7 @@ export function ControlPanel({
         <div className="grid grid-cols-2 gap-3">
           <div>
             <Label className="text-xs text-muted-foreground mb-1.5 block">
-              Foreground
+              Text Color
             </Label>
             <div className="flex gap-2">
               <Input
@@ -336,29 +336,24 @@ export function ControlPanel({
           </div>
           <div>
             <Label className="text-xs text-muted-foreground mb-1.5 block">
-              Background
+              Background (Auto)
             </Label>
-            <div className="flex gap-2">
-              <Input
-                type="color"
-                value={settings.backgroundColor === 'transparent' ? '#000000' : settings.backgroundColor}
-                onChange={(e) =>
-                  onSettingsChange({ backgroundColor: e.target.value })
-                }
-                className="w-10 h-9 p-0.5 bg-secondary border-border cursor-pointer rounded-lg"
-              />
-              <Input
-                type="text"
-                value={settings.backgroundColor}
-                onChange={(e) =>
-                  onSettingsChange({ backgroundColor: e.target.value })
-                }
-                className="flex-1 h-9 bg-secondary/50 border-border font-mono text-xs"
-                placeholder="transparent"
-              />
+            <div 
+              className="h-9 rounded-lg border border-border flex items-center justify-center gap-2"
+              style={{ 
+                backgroundColor: isColorDark(settings.foregroundColor) ? '#FFFFFF' : '#000000',
+                color: isColorDark(settings.foregroundColor) ? '#000000' : '#FFFFFF'
+              }}
+            >
+              <span className="text-xs font-medium">
+                {isColorDark(settings.foregroundColor) ? 'White' : 'Black'}
+              </span>
             </div>
           </div>
         </div>
+        <p className="text-xs text-muted-foreground">
+          Background auto-adjusts: white for dark text, black for light text.
+        </p>
       </div>
 
       {/* Seed */}
