@@ -6,6 +6,7 @@ import { Footer } from '@/components/matchcut/Footer';
 import { InputPanel } from '@/components/matchcut/InputPanel';
 import { PreviewCanvas } from '@/components/matchcut/PreviewCanvas';
 import { ControlPanel, ExportFormat } from '@/components/matchcut/ControlPanel';
+import { MobileNav, MobileTab } from '@/components/matchcut/MobileNav';
 import { InsufficientCreditsDialog } from '@/components/credits/InsufficientCreditsDialog';
 import { OnboardingDialog, useOnboarding } from '@/components/onboarding/OnboardingDialog';
 import { PRESETS, PresetKey, DEFAULT_IMPACT_FONTS } from '@/lib/fonts';
@@ -13,6 +14,7 @@ import { ANIMATION_STYLES, getAnimationStyle } from '@/lib/animationStyles';
 import { MatchCutSettings, generateSequence, exportAsVideo, exportSequenceAsPngs, MatchCutSequence, getAspectRatio } from '@/lib/matchcut';
 import { useCredits } from '@/hooks/use-credits';
 import { useCooldown } from '@/hooks/use-cooldown';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
 
 const DEFAULT_SETTINGS: MatchCutSettings = {
@@ -38,7 +40,9 @@ const Index = () => {
   const [showInsufficientDialog, setShowInsufficientDialog] = useState(false);
   const [insufficientReason, setInsufficientReason] = useState('');
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [mobileTab, setMobileTab] = useState<MobileTab>('input');
   const exportCanvasRef = useRef<HTMLCanvasElement>(null);
+  const isMobile = useIsMobile();
 
   // Credit system hook
   const credits = useCredits();
@@ -288,7 +292,8 @@ const Index = () => {
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       
-      <main className="flex-1 container mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-[300px_1fr_360px] gap-4 lg:gap-6">
+      {/* Desktop Layout */}
+      <main className="flex-1 container mx-auto p-4 md:p-6 hidden lg:grid lg:grid-cols-[300px_1fr_360px] gap-6">
         {/* Left Panel - Input */}
         <aside className="bg-card rounded-xl border border-border p-5 shadow-card animate-fade-in">
           <InputPanel
@@ -301,7 +306,7 @@ const Index = () => {
         </aside>
 
         {/* Center - Preview */}
-        <section className="bg-card rounded-xl border border-border p-5 shadow-card min-h-[400px] lg:min-h-0 animate-fade-in">
+        <section className="bg-card rounded-xl border border-border p-5 shadow-card animate-fade-in">
           <PreviewCanvas 
             sequence={sequence} 
             onRegenerate={handleRegeneratePreview}
@@ -337,7 +342,68 @@ const Index = () => {
         </aside>
       </main>
 
-      <Footer lastExport={lastExport} />
+      {/* Mobile Layout */}
+      <main className="flex-1 flex flex-col lg:hidden pb-20">
+        {/* Mobile Tab Content */}
+        <div className="flex-1 p-4 overflow-y-auto">
+          {mobileTab === 'input' && (
+            <div className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in h-full">
+              <InputPanel
+                text={settings.text}
+                onTextChange={(text) => handleSettingsChange({ text })}
+                onPresetSelect={handlePresetSelect}
+                selectedPreset={selectedPreset}
+                onCustomFontsSelect={handleCustomFontsSelect}
+              />
+            </div>
+          )}
+          
+          {mobileTab === 'preview' && (
+            <div className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in h-full min-h-[60vh]">
+              <PreviewCanvas 
+                sequence={sequence} 
+                onRegenerate={handleRegeneratePreview}
+              />
+            </div>
+          )}
+          
+          {mobileTab === 'controls' && (
+            <div className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in">
+              <ControlPanel
+                settings={settings}
+                onSettingsChange={handleSettingsChange}
+                onExport={handleExport}
+                isExporting={isExporting}
+                exportProgress={exportProgress}
+                bonusCredits={credits.bonusCredits}
+                monthlyCredits={credits.monthlyCredits}
+                remainingDaily={credits.remainingDaily}
+                purchasedCredits={credits.purchasedCredits}
+                bonusColor={credits.bonusColor}
+                monthlyColor={credits.monthlyColor}
+                dailyColor={credits.dailyColor}
+                creditResetDate={credits.creditData?.creditResetDate}
+                renderCost={renderCost}
+                canAfford={affordCheck.canRender}
+                
+                selectedAnimationStyle={selectedAnimationStyle}
+                onAnimationStyleChange={handleAnimationStyleChange}
+                totalFrames={sequence?.totalFrames || Math.ceil(settings.fps * settings.duration)}
+                fps={settings.fps}
+                isOnCooldown={cooldown.isOnCooldown}
+                cooldownRemaining={cooldown.formatCooldown}
+              />
+            </div>
+          )}
+        </div>
+        
+        {/* Mobile Bottom Navigation */}
+        <MobileNav activeTab={mobileTab} onTabChange={setMobileTab} />
+      </main>
+
+      <div className="hidden lg:block">
+        <Footer lastExport={lastExport} />
+      </div>
 
       {/* Hidden canvas for export - dynamically sized based on aspect ratio */}
       <canvas

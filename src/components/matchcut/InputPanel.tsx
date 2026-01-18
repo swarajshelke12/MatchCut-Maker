@@ -76,7 +76,7 @@ export function InputPanel({ text, onTextChange, onPresetSelect, selectedPreset,
   };
 
   return (
-    <div className="flex flex-col gap-6 h-full">
+    <div className="flex flex-col gap-4 lg:gap-6 h-full">
       <div>
         <h2 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
           <Type className="w-5 h-5 text-primary" />
@@ -87,7 +87,9 @@ export function InputPanel({ text, onTextChange, onPresetSelect, selectedPreset,
         </p>
         <div className="mt-3 p-3 bg-secondary/20 rounded-lg border border-border/50">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            <span className="font-semibold text-foreground/80">How to use:</span> Export the video, import it into your editing software (Premiere, DaVinci, After Effects, etc.), and remove the background using chroma key or the "Remove Background" effect to overlay the text animation on your footage.
+            <span className="font-semibold text-foreground/80">💡 Tip:</span>{' '}
+            <span className="hidden sm:inline">Export the video, import it into your editing software (Premiere, DaVinci, After Effects), and remove the background to overlay the text on your footage.</span>
+            <span className="sm:hidden">Export → Import to editor → Remove background → Overlay on footage.</span>
           </p>
         </div>
       </div>
