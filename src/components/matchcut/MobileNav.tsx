@@ -1,7 +1,8 @@
-import { Type, Sliders } from 'lucide-react';
+import { useState } from 'react';
+import { Type, Eye, Sliders } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type MobileTab = 'edit' | 'settings';
+export type MobileTab = 'input' | 'preview' | 'controls';
 
 interface MobileNavProps {
   activeTab: MobileTab;
@@ -10,13 +11,14 @@ interface MobileNavProps {
 
 export function MobileNav({ activeTab, onTabChange }: MobileNavProps) {
   const tabs = [
-    { id: 'edit' as MobileTab, label: 'Edit Text', icon: Type },
-    { id: 'settings' as MobileTab, label: 'Settings & Export', icon: Sliders },
+    { id: 'input' as MobileTab, label: 'Text', icon: Type },
+    { id: 'preview' as MobileTab, label: 'Preview', icon: Eye },
+    { id: 'controls' as MobileTab, label: 'Settings', icon: Sliders },
   ];
 
   return (
-    <nav className="bg-card/95 backdrop-blur-lg border-b border-border lg:hidden sticky top-[65px] z-40">
-      <div className="flex items-center h-12 px-4 gap-2">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-t border-border lg:hidden">
+      <div className="flex items-center justify-around h-16 px-2">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -25,14 +27,22 @@ export function MobileNav({ activeTab, onTabChange }: MobileNavProps) {
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={cn(
-                "flex items-center justify-center gap-2 flex-1 h-9 rounded-lg transition-all font-medium text-sm",
+                "flex flex-col items-center justify-center gap-1 flex-1 h-full transition-colors",
                 isActive 
-                  ? "bg-primary text-primary-foreground" 
-                  : "bg-secondary/50 text-muted-foreground hover:text-foreground hover:bg-secondary"
+                  ? "text-primary" 
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <Icon className="w-4 h-4" />
-              <span>{tab.label}</span>
+              <Icon className={cn("w-5 h-5", isActive && "text-primary")} />
+              <span className={cn(
+                "text-xs font-medium",
+                isActive && "text-primary"
+              )}>
+                {tab.label}
+              </span>
+              {isActive && (
+                <div className="absolute bottom-0 h-0.5 w-12 bg-primary rounded-t-full" />
+              )}
             </button>
           );
         })}
