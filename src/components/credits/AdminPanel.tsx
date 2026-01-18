@@ -8,10 +8,9 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Settings, User, Plus, RotateCcw, History, AlertCircle } from 'lucide-react';
+import { Settings, User, History, AlertCircle } from 'lucide-react';
 import { CreditData, loadCreditData, saveCreditData, CREDIT_CONFIG, formatResetDate } from '@/lib/credits';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
@@ -52,7 +51,6 @@ export function AdminPanel() {
   const [open, setOpen] = useState(false);
   const [creditData, setCreditData] = useState<CreditData | null>(null);
   const [renderLogs, setRenderLogs] = useState<RenderLog[]>([]);
-  const [addCreditsAmount, setAddCreditsAmount] = useState('100');
 
   useEffect(() => {
     if (open) {
@@ -61,65 +59,6 @@ export function AdminPanel() {
     }
   }, [open]);
 
-  const handleAddCredits = () => {
-    if (!creditData) return;
-    const amount = parseInt(addCreditsAmount) || 0;
-    if (amount <= 0) return;
-
-    const updated = {
-      ...creditData,
-      purchasedCredits: creditData.purchasedCredits + amount,
-    };
-    saveCreditData(updated);
-    setCreditData(updated);
-    toast.success(`Added ${amount} credits`);
-    setAddCreditsAmount('100');
-  };
-
-  const handleAddBonusCredits = () => {
-    if (!creditData) return;
-    const amount = parseInt(addCreditsAmount) || 0;
-    if (amount <= 0) return;
-
-    const updated = {
-      ...creditData,
-      bonusCredits: creditData.bonusCredits + amount,
-    };
-    saveCreditData(updated);
-    setCreditData(updated);
-    toast.success(`Added ${amount} bonus credits`);
-    setAddCreditsAmount('100');
-  };
-
-  const handleResetDaily = () => {
-    if (!creditData) return;
-    const updated = { ...creditData, dailyCreditsUsed: 0 };
-    saveCreditData(updated);
-    setCreditData(updated);
-    toast.success('Daily credits reset');
-  };
-
-  const handleResetMonthly = () => {
-    if (!creditData) return;
-    const updated = { ...creditData, monthlyCredits: CREDIT_CONFIG.MONTHLY_CREDITS };
-    saveCreditData(updated);
-    setCreditData(updated);
-    toast.success('Monthly credits reset');
-  };
-
-  const handleResetAll = () => {
-    if (!creditData) return;
-    const updated = {
-      ...creditData,
-      bonusCredits: CREDIT_CONFIG.BONUS_CREDITS,
-      monthlyCredits: CREDIT_CONFIG.MONTHLY_CREDITS,
-      dailyCreditsUsed: 0,
-      purchasedCredits: 0,
-    };
-    saveCreditData(updated);
-    setCreditData(updated);
-    toast.success('All credits reset to defaults');
-  };
 
   const failedRenders = renderLogs.filter(log => !log.success);
 
@@ -181,47 +120,6 @@ export function AdminPanel() {
                     {creditData?.creditResetDate && formatResetDate(creditData.creditResetDate)}
                   </p>
                 </div>
-              </div>
-            </div>
-
-            <Separator />
-
-            {/* Credit Controls */}
-            <div className="space-y-3">
-              <h3 className="text-sm font-medium flex items-center gap-2">
-                <Plus className="w-4 h-4 text-primary" />
-                Credit Controls
-              </h3>
-              
-              <div className="flex items-center gap-2">
-                <Input
-                  type="number"
-                  value={addCreditsAmount}
-                  onChange={(e) => setAddCreditsAmount(e.target.value)}
-                  className="w-24"
-                  min="1"
-                />
-                <Button onClick={handleAddCredits} size="sm">
-                  Add Purchased
-                </Button>
-                <Button onClick={handleAddBonusCredits} size="sm" variant="outline">
-                  Add Bonus
-                </Button>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                <Button onClick={handleResetDaily} variant="outline" size="sm">
-                  <RotateCcw className="w-3 h-3 mr-1" />
-                  Reset Daily
-                </Button>
-                <Button onClick={handleResetMonthly} variant="outline" size="sm">
-                  <RotateCcw className="w-3 h-3 mr-1" />
-                  Reset Monthly
-                </Button>
-                <Button onClick={handleResetAll} variant="outline" size="sm">
-                  <RotateCcw className="w-3 h-3 mr-1" />
-                  Reset All
-                </Button>
               </div>
             </div>
 
