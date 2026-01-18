@@ -14,7 +14,6 @@ import { ANIMATION_STYLES, getAnimationStyle } from '@/lib/animationStyles';
 import { MatchCutSettings, generateSequence, exportAsVideo, exportSequenceAsPngs, MatchCutSequence, getAspectRatio } from '@/lib/matchcut';
 import { useCredits } from '@/hooks/use-credits';
 import { useCooldown } from '@/hooks/use-cooldown';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { toast } from 'sonner';
 
 const DEFAULT_SETTINGS: MatchCutSettings = {
@@ -40,9 +39,8 @@ const Index = () => {
   const [showInsufficientDialog, setShowInsufficientDialog] = useState(false);
   const [insufficientReason, setInsufficientReason] = useState('');
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [mobileTab, setMobileTab] = useState<MobileTab>('input');
+  const [mobileTab, setMobileTab] = useState<MobileTab>('edit');
   const exportCanvasRef = useRef<HTMLCanvasElement>(null);
-  const isMobile = useIsMobile();
 
   // Credit system hook
   const credits = useCredits();
@@ -343,11 +341,24 @@ const Index = () => {
       </main>
 
       {/* Mobile Layout */}
-      <main className="flex-1 flex flex-col lg:hidden pb-20">
+      <main className="flex-1 flex flex-col lg:hidden">
+        {/* Mobile Tab Switcher - at top below header */}
+        <MobileNav activeTab={mobileTab} onTabChange={setMobileTab} />
+        
+        {/* Preview - Always visible on mobile */}
+        <div className="p-3 pb-0">
+          <div className="bg-card rounded-xl border border-border p-3 shadow-card h-[200px]">
+            <PreviewCanvas 
+              sequence={sequence} 
+              onRegenerate={handleRegeneratePreview}
+            />
+          </div>
+        </div>
+
         {/* Mobile Tab Content */}
-        <div className="flex-1 p-4 overflow-y-auto">
-          {mobileTab === 'input' && (
-            <div className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in h-full">
+        <div className="flex-1 p-3 overflow-y-auto">
+          {mobileTab === 'edit' && (
+            <div className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in">
               <InputPanel
                 text={settings.text}
                 onTextChange={(text) => handleSettingsChange({ text })}
@@ -358,16 +369,7 @@ const Index = () => {
             </div>
           )}
           
-          {mobileTab === 'preview' && (
-            <div className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in h-full min-h-[60vh]">
-              <PreviewCanvas 
-                sequence={sequence} 
-                onRegenerate={handleRegeneratePreview}
-              />
-            </div>
-          )}
-          
-          {mobileTab === 'controls' && (
+          {mobileTab === 'settings' && (
             <div className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in">
               <ControlPanel
                 settings={settings}
@@ -396,9 +398,6 @@ const Index = () => {
             </div>
           )}
         </div>
-        
-        {/* Mobile Bottom Navigation */}
-        <MobileNav activeTab={mobileTab} onTabChange={setMobileTab} />
       </main>
 
       <div className="hidden lg:block">
