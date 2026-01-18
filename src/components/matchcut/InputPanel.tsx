@@ -85,6 +85,11 @@ export function InputPanel({ text, onTextChange, onPresetSelect, selectedPreset,
         <p className="text-sm text-muted-foreground">
           Paste your text — keep it short for maximum impact.
         </p>
+        <div className="mt-3 p-3 bg-secondary/20 rounded-lg border border-border/50">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            <span className="font-semibold text-foreground/80">How to use:</span> Export the video, import it into your editing software (Premiere, DaVinci, After Effects, etc.), and remove the background using chroma key or the "Remove Background" effect to overlay the text animation on your footage.
+          </p>
+        </div>
       </div>
 
       <div className="flex-1">
