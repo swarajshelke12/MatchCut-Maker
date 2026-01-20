@@ -343,28 +343,30 @@ const Index = () => {
       </main>
 
       {/* Mobile Layout */}
-      <main className="flex-1 flex flex-col lg:hidden pb-20">
+      <main className="flex-1 flex flex-col lg:hidden pb-16">
         {/* Mobile Tab Content */}
-        <div className="flex-1 p-4 overflow-y-auto">
+        <div className="flex-1 p-4 overflow-y-auto space-y-4">
           {mobileTab === 'input' && (
-            <div className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in h-full">
-              <InputPanel
-                text={settings.text}
-                onTextChange={(text) => handleSettingsChange({ text })}
-                onPresetSelect={handlePresetSelect}
-                selectedPreset={selectedPreset}
-                onCustomFontsSelect={handleCustomFontsSelect}
-              />
-            </div>
-          )}
-          
-          {mobileTab === 'preview' && (
-            <div className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in h-full min-h-[60vh]">
-              <PreviewCanvas 
-                sequence={sequence} 
-                onRegenerate={handleRegeneratePreview}
-              />
-            </div>
+            <>
+              {/* Input Panel */}
+              <div className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in">
+                <InputPanel
+                  text={settings.text}
+                  onTextChange={(text) => handleSettingsChange({ text })}
+                  onPresetSelect={handlePresetSelect}
+                  selectedPreset={selectedPreset}
+                  onCustomFontsSelect={handleCustomFontsSelect}
+                />
+              </div>
+              
+              {/* Preview Panel - shown below input */}
+              <div className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in min-h-[50vh]">
+                <PreviewCanvas 
+                  sequence={sequence} 
+                  onRegenerate={handleRegeneratePreview}
+                />
+              </div>
+            </>
           )}
           
           {mobileTab === 'controls' && (
