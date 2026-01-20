@@ -189,13 +189,13 @@ export function ControlPanel({
             </Button>
           </div>
         </div>
-        <ScrollArea className="h-[100px] rounded-lg border border-border bg-secondary/20 p-3">
-          <div className="space-y-2">
+        <ScrollArea className="h-[200px] rounded-lg border border-border bg-secondary/20 p-3">
+          <div className="space-y-2.5">
             {isNoneSelected ? (
               <p className="text-sm text-muted-foreground text-center py-2">No fonts selected. Click "All" or select fonts below.</p>
             ) : null}
             {displayedFonts.map((font) => (
-              <div key={font.name} className="flex items-center gap-2">
+              <div key={font.name} className="flex items-center gap-3 py-1 px-1 rounded-md hover:bg-secondary/50 transition-colors">
                 <Checkbox
                   id={font.name}
                   checked={
@@ -209,11 +209,11 @@ export function ControlPanel({
                       handleFontToggle(font.name, !!checked);
                     }
                   }}
-                  className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                  className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary h-5 w-5"
                 />
                 <label
                   htmlFor={font.name}
-                  className="text-sm text-foreground cursor-pointer flex-1"
+                  className="text-sm text-foreground cursor-pointer flex-1 py-0.5"
                   style={{ fontFamily: font.family }}
                 >
                   {font.name}
