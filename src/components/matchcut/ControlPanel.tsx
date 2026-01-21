@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,14 +7,29 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { CURATED_FONTS } from '@/lib/fonts';
+import { CURATED_FONTS, FontOption } from '@/lib/fonts';
 import { ANIMATION_STYLES, getAnimationStyle, AnimationStyleId } from '@/lib/animationStyles';
-import { Shuffle, Settings2, Palette, Video, Image, Wand2, Clock, Monitor, Timer } from 'lucide-react';
+import { Shuffle, Settings2, Palette, Video, Image, Wand2, Clock, Monitor, Timer, Search } from 'lucide-react';
 import { MatchCutSettings, ASPECT_RATIOS, AspectRatioId, isColorDark } from '@/lib/matchcut';
 import { CreditCost, estimateRenderTime } from '@/lib/credits';
 import { CreditMeter } from '@/components/credits/CreditMeter';
 import { RenderCostBadge } from '@/components/credits/RenderCostBadge';
 import { cn } from '@/lib/utils';
+
+// Font category configuration
+const FONT_CATEGORIES = [
+  { id: 'all', label: 'All' },
+  { id: 'display', label: 'Display' },
+  { id: 'serif', label: 'Serif' },
+  { id: 'sans', label: 'Sans' },
+  { id: 'handwritten', label: 'Script' },
+  { id: 'decorative', label: 'Decorative' },
+  { id: 'retro', label: 'Retro' },
+  { id: 'futuristic', label: 'Future' },
+  { id: 'elegant', label: 'Elegant' },
+] as const;
+
+type FontCategoryId = typeof FONT_CATEGORIES[number]['id'];
 
 export type ExportFormat = 'video' | 'png';
 
@@ -69,6 +84,8 @@ export function ControlPanel({
   isOnCooldown,
   cooldownRemaining,
 }: ControlPanelProps) {
+  const [fontSearch, setFontSearch] = useState('');
+  const [fontCategory, setFontCategory] = useState<FontCategoryId>('all');
   const handleFontToggle = (fontName: string, checked: boolean) => {
     const newFonts = checked
       ? [...settings.selectedFonts, fontName]
@@ -92,7 +109,16 @@ export function ControlPanel({
     onSettingsChange({ seed: Math.floor(Math.random() * 999999) });
   };
 
-  const displayedFonts = CURATED_FONTS;
+  // Filter fonts by category and search
+  const filteredFonts = useMemo(() => {
+    return CURATED_FONTS.filter((font) => {
+      const matchesCategory = fontCategory === 'all' || font.category === fontCategory;
+      const matchesSearch = fontSearch === '' || 
+        font.name.toLowerCase().includes(fontSearch.toLowerCase());
+      return matchesCategory && matchesSearch;
+    });
+  }, [fontCategory, fontSearch]);
+
   const canExport = settings.text.trim() && canAfford && !isOnCooldown;
   const estimatedTime = estimateRenderTime(totalFrames, fps);
 
@@ -187,12 +213,53 @@ export function ControlPanel({
             </Button>
           </div>
         </div>
+        
+        {/* Search Input */}
+        <div className="relative mb-2">
+          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search fonts..."
+            value={fontSearch}
+            onChange={(e) => setFontSearch(e.target.value)}
+            className="h-8 pl-8 text-xs bg-secondary/50 border-border"
+          />
+        </div>
+
+        {/* Category Tabs */}
+        <div className="flex flex-wrap gap-1 mb-2">
+          {FONT_CATEGORIES.map((cat) => (
+            <Button
+              key={cat.id}
+              variant={fontCategory === cat.id ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setFontCategory(cat.id)}
+              className={cn(
+                'h-6 px-2 text-xs',
+                fontCategory === cat.id 
+                  ? 'bg-primary text-primary-foreground' 
+                  : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              {cat.label}
+            </Button>
+          ))}
+        </div>
+
+        {/* Font count */}
+        <p className="text-xs text-muted-foreground mb-2">
+          Showing {filteredFonts.length} of {CURATED_FONTS.length} fonts
+        </p>
+
         <ScrollArea className="h-[200px] rounded-lg border border-border bg-secondary/20 p-3">
           <div className="space-y-2.5">
-            {isNoneSelected ? (
+            {isNoneSelected && filteredFonts.length > 0 ? (
               <p className="text-sm text-muted-foreground text-center py-2">No fonts selected. Click "All" or select fonts below.</p>
             ) : null}
-            {displayedFonts.map((font) => (
+            {filteredFonts.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-4">No fonts match your search.</p>
+            ) : null}
+            {filteredFonts.map((font) => (
               <div key={font.name} className="flex items-center gap-3 py-1 px-1 rounded-md hover:bg-secondary/50 transition-colors">
                 <Checkbox
                   id={font.name}
