@@ -69,8 +69,6 @@ export function ControlPanel({
   isOnCooldown,
   cooldownRemaining,
 }: ControlPanelProps) {
-  const [showAllFonts, setShowAllFonts] = useState(false);
-
   const handleFontToggle = (fontName: string, checked: boolean) => {
     const newFonts = checked
       ? [...settings.selectedFonts, fontName]
@@ -94,7 +92,7 @@ export function ControlPanel({
     onSettingsChange({ seed: Math.floor(Math.random() * 999999) });
   };
 
-  const displayedFonts = showAllFonts ? CURATED_FONTS : CURATED_FONTS.slice(0, 10);
+  const displayedFonts = CURATED_FONTS;
   const canExport = settings.text.trim() && canAfford && !isOnCooldown;
   const estimatedTime = estimateRenderTime(totalFrames, fps);
 
@@ -225,16 +223,6 @@ export function ControlPanel({
             ))}
           </div>
         </ScrollArea>
-        {!showAllFonts && CURATED_FONTS.length > 10 && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setShowAllFonts(true)}
-            className="w-full mt-2 text-xs text-muted-foreground hover:text-primary"
-          >
-            Show all {CURATED_FONTS.length} fonts
-          </Button>
-        )}
       </div>
 
       {/* Timing Controls */}
