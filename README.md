@@ -1,73 +1,55 @@
-# Welcome to your Lovable project
+<div align="center">
+  <h1>🎬 MatchCut Maker</h1>
+  <p><i>Precision video transition engineering and visual storytelling, accelerated.</i></p>
 
-## Project info
+  <p>
+    <img alt="React" src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB">
+    <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white">
+    <img alt="Vite" src="https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E">
+    <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white">
+  </p>
+</div>
 
-**URL**: https://lovable.dev/projects/79bfb077-073d-4f5a-82ff-cad7fa180c2d
+## 🧠 Overview
+**MatchCut Maker** is a sophisticated web application designed to streamline the creation of seamless visual transitions (match cuts). Built for creators and video editors, it provides a robust canvas and control panel to perfectly align frames, ensuring flawless cinematic continuity and saving hours of manual editing time.
 
-## How can I edit this code?
+## ⚡ Core Capabilities
+- 🎛️ **Precision Control Panel:** Fine-tune your visual alignments with granular input controls and real-time feedback.
+- 👁️ **Interactive Preview Canvas:** Visually match and overlay frames before rendering, ensuring perfect compositional alignment.
+- 🪙 **Credit-Based Economy:** Integrated credit meter, rendering cost calculations, and an admin panel to manage processing costs and user quotas efficiently.
+- 🎨 **Premium UI/UX:** A sleek, highly responsive interface featuring modern onboarding flows and dynamic alerts.
 
-There are several ways of editing your application.
+## 🛠️ Technical Architecture
+This project is built using a modern, high-performance frontend stack:
+- **Framework:** React + TypeScript powered by Vite
+- **Styling:** Tailwind CSS
+- **Components:** shadcn-ui for highly accessible, customizable UI elements
 
-**Use Lovable**
+## 🚀 Getting Started
+To run this application locally in your development environment:
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/79bfb077-073d-4f5a-82ff-cad7fa180c2d) and start prompting.
+1. **Clone the repository**:
+   ```bash
+   git clone <YOUR_GIT_URL>
+   cd matchcut-makerInstall dependencies:
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
+Bash
 npm i
+Start the development server:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+Bash
 npm run dev
-```
+👨‍💻 Developed By
+Swaraj Shelke Automation Enthusiast & AI Workflow Architect
 
-**Edit a file directly in GitHub**
+🌐 LinkedIn
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+💻 GitHub
 
-**Use GitHub Codespaces**
+📸 Instagram
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+🎥 YouTube
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/79bfb077-073d-4f5a-82ff-cad7fa180c2d) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+<div align="center">
+<i>If this tool accelerates your editing workflow, please consider leaving a ⭐ on the repository!</i>
+</div>
