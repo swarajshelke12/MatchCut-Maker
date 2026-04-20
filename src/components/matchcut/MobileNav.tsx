@@ -15,8 +15,15 @@ export function MobileNav({ activeTab, onTabChange }: MobileNavProps) {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-lg border-t border-border lg:hidden">
-      <div className="flex items-center justify-around h-14 px-4">
+    <nav className="fixed bottom-3 left-3 right-3 z-50 glass-panel-strong rounded-2xl lg:hidden overflow-hidden">
+      <div className="flex items-center justify-around h-14 px-1.5 relative">
+        {/* Sliding indicator */}
+        <div
+          className={cn(
+            "absolute top-1.5 bottom-1.5 w-[calc(50%-0.375rem)] rounded-xl bg-gradient-primary shadow-glow transition-all duration-300 ease-smooth",
+            activeTab === 'input' ? 'left-1.5' : 'left-[50%]'
+          )}
+        />
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -25,14 +32,14 @@ export function MobileNav({ activeTab, onTabChange }: MobileNavProps) {
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
               className={cn(
-                "flex items-center justify-center gap-2 flex-1 h-full transition-all rounded-lg mx-1",
-                isActive 
-                  ? "bg-primary/10 text-primary" 
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                "relative z-10 flex items-center justify-center gap-2 flex-1 h-full transition-colors duration-300",
+                isActive
+                  ? "text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <Icon className="w-5 h-5" />
-              <span className="text-sm font-medium">
+              <Icon className="w-4 h-4" strokeWidth={isActive ? 2.5 : 2} />
+              <span className={cn("text-sm tracking-wide", isActive ? "font-semibold" : "font-medium")}>
                 {tab.label}
               </span>
             </button>
