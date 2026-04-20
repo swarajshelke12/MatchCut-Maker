@@ -280,9 +280,13 @@ const Index = () => {
   if (credits.isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-3 border-primary/30 border-t-primary rounded-full animate-spin" />
-          <p className="text-sm text-muted-foreground">Loading MatchCut Maker...</p>
+        <div className="flex flex-col items-center gap-5 animate-fade-in">
+          <div className="relative">
+            <div className="w-14 h-14 border-2 border-primary/20 rounded-full" />
+            <div className="absolute inset-0 w-14 h-14 border-2 border-transparent border-t-primary border-r-primary rounded-full animate-spin" />
+            <div className="absolute inset-2 rounded-full bg-gradient-primary opacity-20 blur-md animate-pulse-glow" />
+          </div>
+          <p className="text-sm text-muted-foreground tracking-wide">Loading MatchCut Maker…</p>
         </div>
       </div>
     );
