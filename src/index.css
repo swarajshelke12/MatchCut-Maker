@@ -6,54 +6,72 @@
 
 @layer base {
   :root {
-    --background: 220 20% 6%;
-    --foreground: 210 20% 95%;
+    --background: 230 25% 5%;
+    --foreground: 210 25% 96%;
 
-    --card: 220 18% 10%;
-    --card-foreground: 210 20% 95%;
+    --card: 230 22% 8%;
+    --card-foreground: 210 25% 96%;
 
-    --popover: 220 18% 10%;
-    --popover-foreground: 210 20% 95%;
+    --popover: 230 22% 9%;
+    --popover-foreground: 210 25% 96%;
 
-    --primary: 175 85% 45%;
-    --primary-foreground: 220 20% 6%;
+    --primary: 172 90% 50%;
+    --primary-foreground: 230 25% 5%;
+    --primary-glow: 185 95% 55%;
 
-    --secondary: 220 15% 16%;
-    --secondary-foreground: 210 20% 90%;
+    --secondary: 230 18% 13%;
+    --secondary-foreground: 210 20% 92%;
 
-    --muted: 220 15% 14%;
-    --muted-foreground: 210 15% 50%;
+    --muted: 230 18% 12%;
+    --muted-foreground: 220 12% 55%;
 
-    --accent: 175 85% 45%;
-    --accent-foreground: 220 20% 6%;
+    --accent: 172 90% 50%;
+    --accent-foreground: 230 25% 5%;
 
-    --destructive: 0 70% 50%;
+    --destructive: 0 75% 55%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 220 15% 18%;
-    --input: 220 15% 16%;
-    --ring: 175 85% 45%;
+    --border: 230 18% 16%;
+    --input: 230 18% 14%;
+    --ring: 172 90% 50%;
 
-    --radius: 0.75rem;
+    --radius: 0.875rem;
 
     /* Custom tokens */
-    --surface-elevated: 220 16% 12%;
-    --glow-primary: 175 85% 45%;
-    --checkerboard-light: 220 15% 16%;
-    --checkerboard-dark: 220 15% 12%;
-    
+    --surface-elevated: 230 20% 10%;
+    --glow-primary: 172 90% 50%;
+    --checkerboard-light: 230 15% 16%;
+    --checkerboard-dark: 230 18% 11%;
+
+    /* Glass surfaces */
+    --glass-bg: 230 22% 10% / 0.6;
+    --glass-border: 210 30% 80% / 0.08;
+    --glass-highlight: 210 40% 95% / 0.04;
+
     /* Credit status colors */
     --credit-green: 160 80% 45%;
     --credit-yellow: 45 90% 55%;
-    --credit-red: 0 70% 50%;
-    
+    --credit-red: 0 75% 55%;
+
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(175, 85%, 45%) 0%, hsl(190, 80%, 40%) 100%);
-    --gradient-surface: linear-gradient(180deg, hsl(220, 18%, 12%) 0%, hsl(220, 18%, 8%) 100%);
-    
+    --gradient-primary: linear-gradient(135deg, hsl(172, 90%, 50%) 0%, hsl(190, 95%, 55%) 100%);
+    --gradient-surface: linear-gradient(180deg, hsl(230, 22%, 10%) 0%, hsl(230, 25%, 6%) 100%);
+    --gradient-mesh:
+      radial-gradient(at 20% 0%, hsl(172 90% 50% / 0.08) 0px, transparent 50%),
+      radial-gradient(at 80% 100%, hsl(260 80% 60% / 0.06) 0px, transparent 50%),
+      radial-gradient(at 50% 50%, hsl(190 95% 55% / 0.04) 0px, transparent 60%);
+    --gradient-text: linear-gradient(135deg, hsl(210 25% 98%) 0%, hsl(220 15% 70%) 100%);
+
     /* Shadows */
-    --shadow-glow: 0 0 30px hsl(175 85% 45% / 0.15);
-    --shadow-card: 0 4px 24px hsl(0 0% 0% / 0.4);
+    --shadow-glow: 0 0 40px hsl(172 90% 50% / 0.18);
+    --shadow-glow-strong: 0 0 60px hsl(172 90% 50% / 0.35);
+    --shadow-card: 0 8px 32px hsl(230 30% 2% / 0.5);
+    --shadow-elevated: 0 20px 60px -10px hsl(230 30% 2% / 0.6);
+    --shadow-inset: inset 0 1px 0 0 hsl(210 40% 95% / 0.04);
+
+    /* Transitions */
+    --ease-smooth: cubic-bezier(0.32, 0.72, 0, 1);
+    --transition-smooth: 250ms var(--ease-smooth);
   }
 }
 
@@ -65,16 +83,45 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', system-ui, sans-serif;
+    background-image: var(--gradient-mesh);
+    background-attachment: fixed;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
   .font-mono {
     font-family: 'JetBrains Mono', monospace;
+    font-feature-settings: "calt", "ss01";
+  }
+
+  ::selection {
+    background: hsl(var(--primary) / 0.25);
+    color: hsl(var(--foreground));
+  }
+
+  /* Refined scrollbar */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--border));
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground) / 0.5);
+    background-clip: content-box;
+    border: 2px solid transparent;
   }
 }
 
 @layer components {
   .checkerboard {
-    background-image: 
+    background-image:
       linear-gradient(45deg, hsl(var(--checkerboard-light)) 25%, transparent 25%),
       linear-gradient(-45deg, hsl(var(--checkerboard-light)) 25%, transparent 25%),
       linear-gradient(45deg, transparent 75%, hsl(var(--checkerboard-light)) 75%),
@@ -90,6 +137,56 @@
 
   .surface-elevated {
     background: hsl(var(--surface-elevated));
+  }
+
+  /* Glassmorphism surfaces */
+  .glass-panel {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+    border: 1px solid hsl(var(--glass-border));
+    box-shadow:
+      var(--shadow-card),
+      var(--shadow-inset);
+  }
+
+  .glass-panel-strong {
+    background: hsl(230 22% 9% / 0.75);
+    backdrop-filter: blur(28px) saturate(160%);
+    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    border: 1px solid hsl(var(--glass-border));
+    box-shadow:
+      var(--shadow-elevated),
+      var(--shadow-inset);
+  }
+
+  .glass-chip {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    border: 1px solid hsl(var(--glass-border));
+  }
+
+  .gradient-text {
+    background: var(--gradient-text);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .gradient-text-primary {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .hover-lift {
+    transition: transform var(--transition-smooth), box-shadow var(--transition-smooth);
+  }
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-elevated);
   }
 }
 
@@ -135,6 +232,31 @@
       opacity: 1;
       transform: translateY(0);
     }
+  }
+
+  .animate-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--primary) / 0.15),
+      transparent
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
   }
 }
 
