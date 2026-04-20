@@ -62,7 +62,17 @@ export default {
       },
       boxShadow: {
         'glow': 'var(--shadow-glow)',
+        'glow-strong': 'var(--shadow-glow-strong)',
         'card': 'var(--shadow-card)',
+        'elevated': 'var(--shadow-elevated)',
+      },
+      backgroundImage: {
+        'gradient-primary': 'var(--gradient-primary)',
+        'gradient-surface': 'var(--gradient-surface)',
+        'gradient-mesh': 'var(--gradient-mesh)',
+      },
+      transitionTimingFunction: {
+        'smooth': 'cubic-bezier(0.32, 0.72, 0, 1)',
       },
       keyframes: {
         "accordion-down": {
