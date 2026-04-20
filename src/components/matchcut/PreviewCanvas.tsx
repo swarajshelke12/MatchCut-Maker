@@ -103,11 +103,22 @@ export function PreviewCanvas({ sequence, onRegenerate }: PreviewCanvasProps) {
   if (!sequence) {
     return (
       <div className="flex flex-col h-full">
-        <div className="flex-1 checkerboard rounded-lg flex items-center justify-center border border-border">
-          <div className="text-center text-muted-foreground p-8">
-            <Maximize2 className="w-16 h-16 mx-auto mb-4 opacity-20" />
-            <p className="text-base font-medium mb-2">Enter text to preview your MatchCut</p>
-            <p className="text-sm opacity-70">Type or paste your text in the left panel</p>
+        <div className="flex-1 checkerboard rounded-2xl flex items-center justify-center border border-border/50 relative overflow-hidden min-h-[280px]">
+          {/* Soft gradient glow background */}
+          <div className="absolute inset-0 bg-gradient-mesh opacity-60 pointer-events-none" />
+          <div className="text-center text-muted-foreground p-8 relative z-10 max-w-xs animate-fade-in">
+            <div className="relative mx-auto mb-5 w-20 h-20 flex items-center justify-center">
+              <div className="absolute inset-0 rounded-2xl bg-gradient-primary opacity-20 blur-2xl animate-pulse-glow" />
+              <div className="relative w-20 h-20 rounded-2xl glass-panel-strong flex items-center justify-center animate-float">
+                <Maximize2 className="w-9 h-9 text-primary" strokeWidth={1.75} />
+              </div>
+            </div>
+            <p className="text-base font-semibold text-foreground mb-1.5 tracking-tight">
+              Your preview will appear here
+            </p>
+            <p className="text-xs opacity-80 leading-relaxed">
+              Type some text on the left to generate a rapid-cut font sequence.
+            </p>
           </div>
         </div>
       </div>
@@ -117,20 +128,20 @@ export function PreviewCanvas({ sequence, onRegenerate }: PreviewCanvasProps) {
   return (
     <div className="flex flex-col h-full gap-4">
       {/* Preview Area */}
-      <div className="flex-1 checkerboard rounded-lg overflow-hidden border border-border relative flex items-center justify-center">
+      <div className="flex-1 checkerboard rounded-2xl overflow-hidden border border-border/50 relative flex items-center justify-center shadow-card">
         <canvas
           ref={canvasRef}
           width={aspectRatio.width}
           height={aspectRatio.height}
           className={cn("max-w-full max-h-full object-contain", aspectClass)}
         />
-        
+
         {/* Preview-only watermark overlay - prominent to prevent screen recording */}
-        <div 
+        <div
           className="absolute inset-0 pointer-events-none overflow-hidden select-none z-20"
         >
           {/* Main diagonal watermark pattern */}
-          <div 
+          <div
             className="absolute inset-0 flex items-center justify-center"
             style={{
               transform: 'rotate(-25deg) scale(2.5)',
@@ -139,8 +150,8 @@ export function PreviewCanvas({ sequence, onRegenerate }: PreviewCanvasProps) {
           >
             <div className="grid gap-8" style={{ gridTemplateColumns: 'repeat(8, 1fr)' }}>
               {Array.from({ length: 64 }).map((_, i) => (
-                <span 
-                  key={i} 
+                <span
+                  key={i}
                   className="text-white/20 text-sm font-bold whitespace-nowrap tracking-wider drop-shadow-lg"
                   style={{
                     textShadow: '0 0 10px rgba(0,0,0,0.5)',
@@ -151,10 +162,10 @@ export function PreviewCanvas({ sequence, onRegenerate }: PreviewCanvasProps) {
               ))}
             </div>
           </div>
-          
+
           {/* Center prominent watermark */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div 
+            <div
               className="text-white/30 text-4xl font-black tracking-widest"
               style={{
                 textShadow: '0 2px 20px rgba(0,0,0,0.8), 0 0 40px rgba(0,0,0,0.5)',
@@ -164,7 +175,7 @@ export function PreviewCanvas({ sequence, onRegenerate }: PreviewCanvasProps) {
               PREVIEW ONLY
             </div>
           </div>
-          
+
           {/* Corner watermarks */}
           <div className="absolute top-4 left-4 text-white/25 text-xs font-semibold tracking-wide">
             MatchCut Maker
@@ -179,14 +190,14 @@ export function PreviewCanvas({ sequence, onRegenerate }: PreviewCanvasProps) {
             Preview Only
           </div>
         </div>
-        
+
         {/* Font indicator */}
-        <div className="absolute bottom-3 left-3 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-mono text-foreground shadow-md z-10">
+        <div className="absolute bottom-3 left-3 glass-chip rounded-lg px-3 py-1.5 text-xs font-mono text-foreground shadow-md z-10">
           {sequence.frames[currentFrame]?.fontName}
         </div>
 
         {/* Frame counter */}
-        <div className="absolute bottom-3 right-3 bg-background/90 backdrop-blur-sm rounded-lg px-3 py-1.5 text-xs font-mono text-muted-foreground shadow-md z-10">
+        <div className="absolute bottom-3 right-3 glass-chip rounded-lg px-3 py-1.5 text-xs font-mono text-muted-foreground shadow-md z-10">
           {currentFrame + 1} / {sequence.totalFrames}
         </div>
       </div>
@@ -206,25 +217,25 @@ export function PreviewCanvas({ sequence, onRegenerate }: PreviewCanvasProps) {
         </div>
 
         {/* Control buttons */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="icon"
               onClick={handlePlayPause}
-              className="h-10 w-10 bg-secondary/50 border-border hover:bg-secondary hover:border-primary/50"
+              className="h-10 w-10 glass-chip border-border/50 hover:border-primary/50 hover:text-primary hover:shadow-glow transition-all duration-200"
             >
               {isPlaying ? (
                 <Pause className="w-4 h-4" />
               ) : (
-                <Play className="w-4 h-4" />
+                <Play className="w-4 h-4 fill-current" />
               )}
             </Button>
             <Button
               variant="outline"
               size="icon"
               onClick={handleReset}
-              className="h-10 w-10 bg-secondary/50 border-border hover:bg-secondary hover:border-primary/50"
+              className="h-10 w-10 glass-chip border-border/50 hover:border-primary/50 hover:text-primary transition-all duration-200"
             >
               <RotateCcw className="w-4 h-4" />
             </Button>
@@ -233,7 +244,7 @@ export function PreviewCanvas({ sequence, onRegenerate }: PreviewCanvasProps) {
                 variant="outline"
                 size="sm"
                 onClick={onRegenerate}
-                className="h-10 px-3 bg-secondary/50 border-border hover:bg-secondary hover:border-primary/50 gap-2"
+                className="h-10 px-3 glass-chip border-border/50 hover:border-primary/50 hover:text-primary transition-all duration-200 gap-2"
               >
                 <RefreshCw className="w-4 h-4" />
                 Regenerate
@@ -241,15 +252,15 @@ export function PreviewCanvas({ sequence, onRegenerate }: PreviewCanvasProps) {
             )}
           </div>
 
-          <div className="text-xs text-muted-foreground">
-            {sequence.fps} fps • {sequence.settings.duration}s duration
+          <div className="text-xs text-muted-foreground font-mono tracking-tight">
+            {sequence.fps} fps · {sequence.settings.duration}s
           </div>
         </div>
       </div>
 
       {/* Tips */}
-      <p className="text-xs text-muted-foreground text-center bg-secondary/30 rounded-lg py-2 px-4">
-        Tip: Use 1–2 frames per card for a punchy look. Change the seed for different font sequences.
+      <p className="text-xs text-muted-foreground text-center glass-chip rounded-lg py-2 px-4">
+        Tip: 1–2 frames per card = punchy. Change the seed for fresh font sequences.
       </p>
     </div>
   );
