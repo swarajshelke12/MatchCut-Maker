@@ -289,13 +289,13 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background relative">
       <Header />
-      
+
       {/* Desktop Layout */}
-      <main className="flex-1 container mx-auto p-4 md:p-6 hidden lg:grid lg:grid-cols-[300px_1fr_360px] gap-6">
+      <main className="flex-1 container mx-auto p-4 md:p-6 hidden lg:grid lg:grid-cols-[320px_1fr_380px] gap-6">
         {/* Left Panel - Input */}
-        <aside className="bg-card rounded-xl border border-border p-5 shadow-card animate-fade-in">
+        <aside className="glass-panel rounded-2xl p-6 animate-fade-in">
           <InputPanel
             text={settings.text}
             onTextChange={(text) => handleSettingsChange({ text })}
@@ -306,15 +306,15 @@ const Index = () => {
         </aside>
 
         {/* Center - Preview */}
-        <section className="bg-card rounded-xl border border-border p-5 shadow-card animate-fade-in">
-          <PreviewCanvas 
-            sequence={sequence} 
+        <section className="glass-panel rounded-2xl p-6 animate-fade-in">
+          <PreviewCanvas
+            sequence={sequence}
             onRegenerate={handleRegeneratePreview}
           />
         </section>
 
         {/* Right Panel - Controls */}
-        <aside className="bg-card rounded-xl border border-border p-5 shadow-card animate-fade-in overflow-y-auto max-h-[calc(100vh-140px)]">
+        <aside className="glass-panel rounded-2xl p-6 animate-fade-in overflow-y-auto max-h-[calc(100vh-140px)]">
           <ControlPanel
             settings={settings}
             onSettingsChange={handleSettingsChange}
@@ -331,7 +331,7 @@ const Index = () => {
             creditResetDate={credits.creditData?.creditResetDate}
             renderCost={renderCost}
             canAfford={affordCheck.canRender}
-            
+
             selectedAnimationStyle={selectedAnimationStyle}
             onAnimationStyleChange={handleAnimationStyleChange}
             totalFrames={sequence?.totalFrames || Math.ceil(settings.fps * settings.duration)}
@@ -343,13 +343,13 @@ const Index = () => {
       </main>
 
       {/* Mobile Layout */}
-      <main className="flex-1 flex flex-col lg:hidden pb-16">
+      <main className="flex-1 flex flex-col lg:hidden pb-24">
         {/* Mobile Tab Content */}
-        <div className="flex-1 p-4 overflow-y-auto space-y-4">
+        <div className="flex-1 p-3 sm:p-4 overflow-y-auto space-y-3 sm:space-y-4">
           {mobileTab === 'input' && (
             <>
               {/* Input Panel */}
-              <div className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in">
+              <div className="glass-panel rounded-2xl p-4 sm:p-5 animate-fade-in">
                 <InputPanel
                   text={settings.text}
                   onTextChange={(text) => handleSettingsChange({ text })}
@@ -358,19 +358,19 @@ const Index = () => {
                   onCustomFontsSelect={handleCustomFontsSelect}
                 />
               </div>
-              
+
               {/* Preview Panel - shown below input */}
-              <div className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in min-h-[50vh]">
-                <PreviewCanvas 
-                  sequence={sequence} 
+              <div className="glass-panel rounded-2xl p-4 sm:p-5 animate-fade-in min-h-[50vh]">
+                <PreviewCanvas
+                  sequence={sequence}
                   onRegenerate={handleRegeneratePreview}
                 />
               </div>
             </>
           )}
-          
+
           {mobileTab === 'controls' && (
-            <div className="bg-card rounded-xl border border-border p-4 shadow-card animate-fade-in">
+            <div className="glass-panel rounded-2xl p-4 sm:p-5 animate-fade-in">
               <ControlPanel
                 settings={settings}
                 onSettingsChange={handleSettingsChange}
@@ -387,7 +387,7 @@ const Index = () => {
                 creditResetDate={credits.creditData?.creditResetDate}
                 renderCost={renderCost}
                 canAfford={affordCheck.canRender}
-                
+
                 selectedAnimationStyle={selectedAnimationStyle}
                 onAnimationStyleChange={handleAnimationStyleChange}
                 totalFrames={sequence?.totalFrames || Math.ceil(settings.fps * settings.duration)}
@@ -398,7 +398,7 @@ const Index = () => {
             </div>
           )}
         </div>
-        
+
         {/* Mobile Bottom Navigation */}
         <MobileNav activeTab={mobileTab} onTabChange={setMobileTab} />
       </main>
