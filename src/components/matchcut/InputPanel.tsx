@@ -76,18 +76,20 @@ export function InputPanel({ text, onTextChange, onPresetSelect, selectedPreset,
   };
 
   return (
-    <div className="flex flex-col gap-4 lg:gap-6 h-full">
+    <div className="flex flex-col gap-5 lg:gap-6 h-full">
       <div>
-        <h2 className="text-lg font-bold text-foreground mb-1 flex items-center gap-2">
-          <Type className="w-5 h-5 text-primary" />
+        <h2 className="text-lg font-bold text-foreground mb-1.5 flex items-center gap-2 tracking-tight">
+          <span className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center border border-primary/20">
+            <Type className="w-4 h-4 text-primary" />
+          </span>
           Input Text
         </h2>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground leading-relaxed">
           Paste your text — keep it short for maximum impact.
         </p>
-        <div className="mt-3 p-3 bg-secondary/20 rounded-lg border border-border/50">
+        <div className="mt-3 p-3 glass-chip rounded-xl">
           <p className="text-xs text-muted-foreground leading-relaxed">
-            <span className="font-semibold text-foreground/80">💡 Tip:</span>{' '}
+            <span className="font-semibold text-foreground/90">💡 Tip:</span>{' '}
             <span className="hidden sm:inline">Export the video, import it into your editing software (Premiere, DaVinci, After Effects), and remove the background to overlay the text on your footage.</span>
             <span className="sm:hidden">Export → Import to editor → Remove background → Overlay on footage.</span>
           </p>
@@ -95,26 +97,26 @@ export function InputPanel({ text, onTextChange, onPresetSelect, selectedPreset,
       </div>
 
       <div className="flex-1">
-        <div className="relative">
+        <div className="relative group">
           <Textarea
             value={text}
             onChange={(e) => handleTextChange(e.target.value)}
             placeholder="KEEP GOING"
             maxLength={MAX_TEXT_LENGTH}
-            className="h-32 resize-none bg-secondary/30 border-border focus:border-primary focus:ring-primary/20 text-foreground placeholder:text-muted-foreground/50 font-mono text-lg rounded-xl pr-10"
+            className="h-32 resize-none glass-chip border-border/50 focus:border-primary/60 focus:ring-2 focus:ring-primary/20 text-foreground placeholder:text-muted-foreground/40 font-mono text-lg rounded-xl pr-10 transition-all duration-200"
           />
           {text.length > 0 && (
             <Button
               variant="ghost"
               size="icon"
               onClick={() => onTextChange('')}
-              className="absolute top-2 right-2 h-6 w-6 text-muted-foreground hover:text-foreground"
+              className="absolute top-2 right-2 h-6 w-6 text-muted-foreground hover:text-destructive transition-colors"
             >
               <X className="h-4 w-4" />
             </Button>
           )}
         </div>
-        <p className={`text-xs mt-2 transition-colors ${getCounterColor()}`}>
+        <p className={`text-xs mt-2 transition-colors font-mono ${getCounterColor()}`}>
           {text.length} / {MAX_TEXT_LENGTH} characters
         </p>
       </div>
