@@ -1,128 +1,112 @@
-<div align="center">
-
 # MatchCut Maker
 
-**Precision Video Transition Engineering & Visual Storytelling — Accelerated**
+[![React](https://img.shields.io/badge/React-18.x-blue?logo=react)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-4.x-purple?logo=vite)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.x-teal?logo=tailwind-css)](https://tailwindcss.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-<br />
+MatchCut Maker is an advanced web application designed to optimize the process of creating seamless visual transitions (match cuts) for video editors and content creators. It provides an intuitive interface and precision control tools to align composition across different frames seamlessly, ensuring cinematic continuity.
 
-[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)](https://vitejs.dev/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![shadcn/ui](https://img.shields.io/badge/shadcn/ui-000000?style=for-the-badge&logo=shadcnui&logoColor=white)](https://ui.shadcn.com/)
+---
 
-<br />
+## Table of Contents
+- [Features](#features)
+- [Architecture & Technologies](#architecture--technologies)
+- [Prerequisites](#prerequisites)
+- [Installation & Setup](#installation--setup)
+- [Project Structure](#project-structure)
+- [Usage](#usage)
+- [License](#license)
+- [Author](#author)
 
-[Overview](#overview) •
-[Core Features](#core-features) •
-[Tech Stack](#tech-stack) •
-[Getting Started](#getting-started) •
-[Developer](#links)
+---
 
-<hr />
+## Features
 
-</div>
+- **Precision Alignment Control**: Fine-tune frame overlays with granular input controls to achieve pixel-perfect match cuts.
+- **Interactive Canvas**: Real-time visual feedback and overlay matching prior to final rendering.
+- **Credit Management System**: Built-in quota and credit management functionality, including an admin dashboard for user oversight.
+- **Responsive Interface**: Engineered with a premium, accessible UI that adapts to various screen sizes.
+- **High-Fidelity Export**: Export aligned configurations and frames with precise rendering settings.
 
-## Overview
+## Architecture & Technologies
 
-**MatchCut Maker** is a sophisticated web application designed to streamline the creation of seamless visual transitions — commonly known as **match cuts**. Built for creators and video editors, it provides a robust interactive canvas and precision control panel to perfectly align frames, ensuring flawless cinematic continuity and saving hours of manual editing time.
+The application is built upon a modern, high-performance web stack:
 
-> **Match cuts** are a film editing technique where the visual composition of one shot seamlessly transitions into another — often used to create a sense of continuity, metaphor, or surprise.
+- **Core Framework**: React (with React Hooks for state management)
+- **Language**: TypeScript for end-to-end type safety
+- **Build Tool**: Vite for optimized development and production builds
+- **Styling**: Tailwind CSS for utility-first styling
+- **Component Library**: shadcn/ui for accessible, unstyled UI primitives
 
-<br />
+## Prerequisites
 
-## Core Features
+Ensure the following dependencies are installed on your local environment before proceeding:
+- [Node.js](https://nodejs.org/en/) (v16.0.0 or higher)
+- [npm](https://www.npmjs.com/) (v8.0.0 or higher) or [Bun](https://bun.sh/)
+- Git
 
-| Feature | Description |
-| :--- | :--- |
-| **Precision Control Panel** | Fine-tune your visual alignments with granular input controls and real-time feedback |
-| **Interactive Preview Canvas** | Visually match and overlay frames before rendering, ensuring perfect compositional alignment |
-| **Credit-Based Economy** | Integrated credit meter, rendering cost calculations, and an admin panel to manage user quotas |
-| **Premium UI/UX** | Sleek, highly responsive interface featuring modern onboarding flows and dynamic alerts |
-| **Export & Render** | Export your matched frames with precision settings for use in your editor of choice |
+## Installation & Setup
 
-<br />
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/swarajshelke12/MatchCut-Maker.git
+   cd MatchCut-Maker
+   ```
 
-## Tech Stack
+2. **Install dependencies**
+   Using npm:
+   ```bash
+   npm install
+   ```
+   *Alternatively, if using Bun:*
+   ```bash
+   bun install
+   ```
 
-This project is built using a modern, high-performance frontend stack:
-
-| Layer | Technology |
-| :--- | :--- |
-| **Framework** | React + TypeScript powered by Vite |
-| **Styling** | Tailwind CSS |
-| **Components** | [shadcn/ui](https://ui.shadcn.com/) for highly accessible, customizable UI primitives |
-| **Language** | TypeScript for type-safe, maintainable code |
-
-<br />
-
-## Getting Started
-
-Follow these steps to run the application locally in your development environment:
-
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/swarajshelke12/MatchCut-Maker.git
-cd matchcut-maker
-```
-
-### 2. Install Dependencies
-
-```bash
-npm install
-```
-
-### 3. Start the Development Server
-
-```bash
-npm run dev
-```
-
-The application will be available at `http://localhost:5173`.
-
-<br />
+3. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+   The application will run locally at `http://localhost:5173`.
 
 ## Project Structure
 
 ```text
 matchcut-maker/
+├── public/                 # Static assets and icons
 ├── src/
-│   ├── components/       # Reusable UI components
-│   ├── features/         # Feature modules (canvas, editor, credits)
-│   ├── hooks/            # Custom React hooks
-│   ├── lib/              # Utility functions and helpers
-│   ├── pages/            # Page-level components
-│   ├── stores/           # State management (Zustand / Jotai)
-│   ├── styles/           # Global styles and Tailwind config
-│   └── types/            # TypeScript type definitions
-├── public/               # Static assets
-├── index.html            # Entry HTML
-├── package.json          # Dependencies and scripts
-└── vite.config.ts        # Vite build configuration
+│   ├── components/         # Reusable presentation components
+│   ├── features/           # Domain-specific modules (canvas, editor, credits)
+│   ├── hooks/              # Custom React hooks
+│   ├── lib/                # Utility modules and configuration
+│   ├── pages/              # Application views/pages
+│   ├── stores/             # Global state management
+│   ├── styles/             # Global stylesheets
+│   └── types/              # TypeScript interface definitions
+├── package.json            # Project metadata and scripts
+├── tailwind.config.ts      # Tailwind CSS configuration
+├── tsconfig.json           # TypeScript configuration
+└── vite.config.ts          # Vite build configuration
 ```
 
-<br />
+## Usage
 
-## Links
+1. Launch the application and navigate to the editor interface.
+2. Upload or import the initial and target video frames.
+3. Utilize the **Interactive Canvas** to overlay and adjust the opacity of the frames.
+4. Adjust the alignment variables (scale, position, rotation) via the **Control Panel**.
+5. Once aligned, proceed to export the settings or frames for your video editing suite.
 
-| Platform | Link |
-| :--- | :--- |
-| **Developer** | Swaraj Shelke — *Automation Enthusiast & AI Workflow Architect* |
-| **LinkedIn** | [linkedin.com/in/swarajshelke](https://linkedin.com/in/swarajshelke) |
-| **GitHub** | [github.com/swaraj-shelke](https://github.com/swaraj-shelke) |
-| **Instagram** | [instagram.com/swarajshelke](https://instagram.com/swarajshelke) |
-| **YouTube** | [youtube.com/@swarajshelke](https://youtube.com/@swarajshelke) |
+## License
 
-<br />
+This project is licensed under the MIT License. See the `LICENSE` file for details.
 
-<div align="center">
+## Author
 
-### Star this repository
+**Swaraj Shelke**  
+*Automation Enthusiast & AI Workflow Architect*
 
-If this tool accelerates your editing workflow, please consider leaving a star on the repository — it helps others discover and contribute!
-
-**Built by [Swaraj Shelke](https://github.com/swaraj-shelke)**
-
-</div>
+- GitHub: [@swaraj-shelke](https://github.com/swaraj-shelke)
+- LinkedIn: [Swaraj Shelke](https://linkedin.com/in/swarajshelke)
