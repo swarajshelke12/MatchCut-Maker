@@ -3,24 +3,32 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MatchCut Maker | Create Rapid Font-Switching Text Effects</title>
-    <meta name="description" content="Generate stunning MatchCut text effects for video editing. Export PNG sequences with alpha, WebM previews, and JSON timing files for Premiere, After Effects, and more." />
+    <title>MatchCut Maker | Rapid Font-Switching Text Effects for Video Editing</title>
+    <meta name="description" content="Generate stunning MatchCut text effects for video editing. Export PNG sequences with alpha channel, WebM video previews, and JSON timing files — ready for Premiere Pro, After Effects, DaVinci Resolve and more." />
     <meta name="author" content="MatchCut Maker" />
-    <link rel="canonical" href="https://matchcut.app" />
+    <meta name="keywords" content="matchcut, text effect, font switching, video editing, premiere pro, after effects, davinci resolve, animation, export, PNG sequence, WebM" />
+    <meta name="theme-color" content="#0d1117" />
 
-    <meta property="og:title" content="MatchCut Maker | Text-to-Effect Generator" />
-    <meta property="og:description" content="Create rapid font-switching text effects for video editing. Export ready-to-use sequences for any NLE." />
+    <!-- Favicon: inline SVG scissors icon matching the app branding -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d1b2a'/%3E%3Cg stroke='%2300e5c0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'%3E%3Ccircle cx='10' cy='11' r='3'/%3E%3Ccircle cx='10' cy='21' r='3'/%3E%3Cline x1='13' y1='11' x2='23' y2='21'/%3E%3Cline x1='13' y1='21' x2='17.5' y2='16.5'/%3E%3Cline x1='21' y1='11' x2='13' y2='11'/%3E%3C/g%3E%3C/svg%3E" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="MatchCut Maker — Rapid Font-Switching Text Effects" />
+    <meta property="og:description" content="Create stunning MatchCut font-switching text effects for video editing. Export as WebM or PNG sequence — ready for any NLE." />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    <meta property="og:url" content="https://matchcut.app" />
 
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@matchcutmaker" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-    
-    <!-- Google Fonts for MatchCut effect -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Alfa+Slab+One&family=Anton&family=Archivo+Black&family=Bangers&family=Bebas+Neue&family=Berkshire+Swash&family=Black+Han+Sans&family=Black+Ops+One&family=Boogaloo&family=Bowlby+One+SC&family=Bungee&family=Bungee+Inline&family=Bungee+Outline&family=Bungee+Shade&family=Butcherman&family=Cabin+Sketch&family=Caesar+Dressing&family=Ceviche+One&family=Chewy&family=Cinzel&family=Cinzel+Decorative&family=Codystar&family=Comfortaa:wght@700&family=Concert+One&family=Contrail+One&family=Creepster&family=Dela+Gothic+One&family=Diplomata+SC&family=Dosis:wght@800&family=Eater&family=Emblema+One&family=Ewert&family=Fascinate&family=Faster+One&family=Fira+Sans:wght@900&family=Flamenco&family=Flavors&family=Fredericka+the+Great&family=Fredoka:wght@700&family=Fugaz+One&family=Gajraj+One&family=Germania+One&family=Gochi+Hand&family=Graduate&family=Gravitas+One&family=Gruppo&family=Gugi&family=Henny+Penny&family=Honk&family=Iceland&family=Irish+Grover&family=Jolly+Lodger&family=Kaushan+Script&family=Kavoon&family=Keania+One&family=Kelly+Slab&family=Kenia&family=Knewave&family=Kranky&family=Lacquer&family=Lemon&family=Lemonada:wght@700&family=Lilita+One&family=Lobster&family=Lobster+Two:wght@700&family=Luckiest+Guy&family=Major+Mono+Display&family=Miltonian+Tattoo&family=Modak&family=Monoton&family=Nabla&family=New+Rocker&family=Nosifer&family=Orbitron:wght@900&family=Oswald:wght@700&family=Outrun+Future&family=Pacifico&family=Passion+One&family=Patua+One&family=Permanent+Marker&family=Piedra&family=Pirata+One&family=Playfair+Display:wght@900&family=Plaster&family=Poller+One&family=Press+Start+2P&family=Pridi:wght@700&family=Racing+Sans+One&family=Rampart+One&family=Rammetto+One&family=Revalia&family=Righteous&family=Rowdies&family=Rubik+Bubbles&family=Rubik+Glitch&family=Rubik+Marker+Hatch&family=Rubik+Mono+One&family=Rubik+Moonrocks&family=Rubik+Puddles&family=Rubik+Spray+Paint&family=Rubik+Vinyl&family=Rubik+Wet+Paint&family=Russo+One&family=Saira+Stencil+One&family=Sancreek&family=Sarina&family=Shojumaru&family=Shrikhand&family=Sigmar+One&family=Silkscreen&family=Slackey&family=Smokum&family=Special+Elite&family=Spicy+Rice&family=Staatliches&family=Stalinist+One&family=Stardos+Stencil&family=Titan+One&family=Train+One&family=Ultra&family=UnifrakturMaguntia&family=Unlock&family=VT323&family=Viga&family=Wallpoet&family=Yatra+One&family=ZCOOL+KuaiLe&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
+    <meta name="twitter:title" content="MatchCut Maker — Font-Switching Text Effects" />
+    <meta name="twitter:description" content="Generate rapid font-switching MatchCut effects. Export WebM or PNG sequences for Premiere, After Effects, DaVinci." />
+
+    <!-- Google Fonts: UI typefaces -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+    <!-- Google Fonts: MatchCut effect fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Alfa+Slab+One&family=Anton&family=Archivo+Black&family=Bangers&family=Bebas+Neue&family=Berkshire+Swash&family=Black+Han+Sans&family=Black+Ops+One&family=Boogaloo&family=Bowlby+One+SC&family=Bungee&family=Bungee+Inline&family=Bungee+Outline&family=Bungee+Shade&family=Butcherman&family=Cabin+Sketch&family=Caesar+Dressing&family=Ceviche+One&family=Chewy&family=Cinzel&family=Cinzel+Decorative&family=Codystar&family=Comfortaa:wght@700&family=Concert+One&family=Contrail+One&family=Creepster&family=Dela+Gothic+One&family=Diplomata+SC&family=Dosis:wght@800&family=Eater&family=Emblema+One&family=Ewert&family=Fascinate&family=Faster+One&family=Fira+Sans:wght@900&family=Flamenco&family=Flavors&family=Fredericka+the+Great&family=Fredoka:wght@700&family=Fugaz+One&family=Gajraj+One&family=Germania+One&family=Gochi+Hand&family=Graduate&family=Gravitas+One&family=Gruppo&family=Gugi&family=Henny+Penny&family=Honk&family=Iceland&family=Irish+Grover&family=Jolly+Lodger&family=Kaushan+Script&family=Kavoon&family=Keania+One&family=Kelly+Slab&family=Kenia&family=Knewave&family=Kranky&family=Lacquer&family=Lemon&family=Lemonada:wght@700&family=Lilita+One&family=Lobster&family=Lobster+Two:wght@700&family=Luckiest+Guy&family=Major+Mono+Display&family=Miltonian+Tattoo&family=Modak&family=Monoton&family=Nabla&family=New+Rocker&family=Nosifer&family=Orbitron:wght@900&family=Oswald:wght@700&family=Pacifico&family=Passion+One&family=Patua+One&family=Permanent+Marker&family=Piedra&family=Pirata+One&family=Playfair+Display:wght@900&family=Plaster&family=Poller+One&family=Press+Start+2P&family=Pridi:wght@700&family=Racing+Sans+One&family=Rampart+One&family=Rammetto+One&family=Revalia&family=Righteous&family=Rowdies&family=Rubik+Bubbles&family=Rubik+Glitch&family=Rubik+Marker+Hatch&family=Rubik+Mono+One&family=Rubik+Moonrocks&family=Rubik+Puddles&family=Rubik+Spray+Paint&family=Rubik+Vinyl&family=Rubik+Wet+Paint&family=Russo+One&family=Saira+Stencil+One&family=Sancreek&family=Sarina&family=Shojumaru&family=Shrikhand&family=Sigmar+One&family=Silkscreen&family=Slackey&family=Smokum&family=Special+Elite&family=Spicy+Rice&family=Staatliches&family=Stalinist+One&family=Stardos+Stencil&family=Titan+One&family=Train+One&family=Ultra&family=UnifrakturMaguntia&family=Unlock&family=VT323&family=Viga&family=Wallpoet&family=Yatra+One&family=ZCOOL+KuaiLe&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet" />
   </head>
 
   <body>
